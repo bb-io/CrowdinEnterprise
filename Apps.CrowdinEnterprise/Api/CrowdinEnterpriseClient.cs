@@ -15,7 +15,7 @@ public class CrowdinEnterpriseClient : CrowdinApiClient
     private static CrowdinCredentials GetCrowdinCreds(
         AuthenticationCredentialsProvider[] creds)
     {
-        var token = creds.Get(CredsNames.ApiToken);
+        var token = creds.Get(CredsNames.AccessToken);
         var organization = creds.Get(CredsNames.OrganiationDomain);
     
         return new()

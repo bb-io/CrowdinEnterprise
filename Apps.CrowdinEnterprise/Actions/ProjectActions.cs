@@ -55,28 +55,41 @@ public class ProjectActions : BaseInvocable
     {
         var client = new CrowdinEnterpriseClient(Creds);
         
-        var request = new EnterpriseProjectForm()
+        var request = new EnterpriseProjectForm
         {
             Name = input.Name,
             SourceLanguageId = input.SourceLanguageId,
-            Identifier = input.Identifier,
-            Visibility = EnumParser.Parse<ProjectVisibility>(input.Visibility, nameof(input.Visibility), EnumValues.ProjectVisibility),
             TargetLanguageIds = input.TargetLanguageIds?.ToList(),
-            Cname = input.Cname,
+            TemplateId = IntParser.Parse(input.TemplateId, nameof(input.TemplateId)),
+            GroupId = IntParser.Parse(input.GroupId, nameof(input.GroupId)),
+            VendorId = IntParser.Parse(input.VendorId, nameof(input.VendorId)),
+            MtEngineId = IntParser.Parse(input.MtEngineId, nameof(input.MtEngineId)),
+            TranslateDuplicates = EnumParser.Parse<DupTranslateAction>(input.TranslateDuplicates, nameof(input.TranslateDuplicates), EnumValues.TranslateDuplicates),
+            TagsDetection = EnumParser.Parse<TagsDetectionAction>(input.TagsDetection, nameof(input.TagsDetection), EnumValues.TagsDetection),
+            DelayedWorkflowStart = input.DelayedWorkflowStart,
+            ExportWithMinApprovalsCount = input.ExportWithMinApprovalsCount,
+            NormalizePlaceholder = input.NormalizePlaceholder,
+            SaveMetaInfoInSource = input.SaveMetaInfoInSource,
+            CustomQaCheckIds = input.CustomQaCheckIds?.Select(x => IntParser.Parse(x, "QA check ID") ?? default).ToList(),
+            GlossaryAccess = input.GlossaryAccess,
             Description = input.Description,
             IsMtAllowed = input.IsMtAllowed,
             AutoSubstitution = input.AutoSubstitution,
             AutoTranslateDialects = input.AutoTranslateDialects,
             PublicDownloads = input.PublicDownloads,
             HiddenStringsProofreadersAccess = input.HiddenStringsProofreadersAccess,
-            UseGlobalTm = input.UseGlobalTm,
             SkipUntranslatedStrings = input.SkipUntranslatedStrings,
             SkipUntranslatedFiles = input.SkipUntranslatedFiles,
-            ExportApprovedOnly = input.ExportApprovedOnly,
             InContext = input.InContext,
             InContextProcessHiddenStrings = input.InContextProcessHiddenStrings,
             InContextPseudoLanguageId = input.InContextPseudoLanguageId,
             QaCheckIsActive = input.QaCheckIsActive,
+            NotificationSettings = new()
+            {
+                ManagerLanguageCompleted = input.ManagerLanguageCompleted,
+                TranslatorNewStrings = input.TranslatorNewStrings,
+                ManagerNewStrings = input.ManagerNewStrings,
+            }
         };
         
         var response = await client.ProjectsGroups.AddProject<EnterpriseProject>(request);

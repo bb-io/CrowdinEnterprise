@@ -21,7 +21,7 @@ public class ConnectionDefinition : IConnectionDefinition
     public IEnumerable<AuthenticationCredentialsProvider> CreateAuthorizationCredentialsProviders(
         Dictionary<string, string> values)
     {
-        var token = values.First(x => x.Key == CredsNames.ApiToken).Value;
+        var token = values.First(x => x.Key == CredsNames.AccessToken).Value;
 
         var creds = values
             .Select(x => new AuthenticationCredentialsProvider(
@@ -37,6 +37,7 @@ public class ConnectionDefinition : IConnectionDefinition
     private string GetOrganization(string token)
     {
         var jwt = new JwtSecurityToken(token);
-        return jwt.Claims.First(c => c.Type == CredsNames.OrganiationDomain).Value;
+        return jwt.Claims.FirstOrDefault(c => c.Type == CredsNames.OrganiationDomain)?.Value ??
+               throw new("Wrong login to Crowdin Enterprise");
     }
 }

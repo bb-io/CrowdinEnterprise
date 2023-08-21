@@ -2,11 +2,12 @@
 
 namespace Apps.CrowdinEnterprise.DataSourceHandlers.EnumHandlers;
 
-public class ProjectVisibilityHandler : EnumDataHandler
+public class UserStatusDataHandler : EnumDataHandler
 {
     protected override Dictionary<string, string> EnumValues => new()
     {
-        { "Open", "Open" },
-        { "Private", "Private" },
+        { "Active", "Active" },
+        { "Pending", "Pending" },
+        { "Blocked", "Blocked" },
     };
 }

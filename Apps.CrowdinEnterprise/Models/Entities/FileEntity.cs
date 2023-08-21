@@ -15,7 +15,7 @@ public class FileEntity
     public string Type { get; set; }
     public string Path { get; set; }
     public string Status { get; set; }
-    [Display("Created at")] public DateTime CreatedAt { get; set; }
+    [Display("Created at")] public DateTime? CreatedAt { get; set; }
 
     public FileEntity(FileCollectionResource file)
     {

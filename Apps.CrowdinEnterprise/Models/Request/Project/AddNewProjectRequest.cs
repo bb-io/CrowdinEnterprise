@@ -13,15 +13,17 @@ public class AddNewProjectRequest
     [DataSource(typeof(LanguagesDataHandler))]
     public string SourceLanguageId { get; set; }
 
-    public string? Identifier { get; set; }
-
     [Display("Target language IDs")] public IEnumerable<string>? TargetLanguageIds { get; set; }
     
-    [DataSource(typeof(ProjectVisibilityHandler))]
-    public string? Visibility { get; set; }
+    [Display("Template ID")] public string? TemplateId { get; set; }
     
-    [Display("Custom domain name")]
-    public string? Cname { get; set; }
+    [Display("Group ID")] 
+    [DataSource(typeof(ProjectGroupDataHandler))]
+    public string? GroupId { get; set; }
+    
+    [Display("Vendor ID")] public string? VendorId { get; set; }
+    [Display("MT Engine ID")] public string? MtEngineId { get; set; }
+    
     public string? Description { get; set; }
 
     [Display("Is MT allowed")] public bool? IsMtAllowed { get; set; }
@@ -35,13 +37,9 @@ public class AddNewProjectRequest
     [Display("Hidden strings proofreaders access")]
     public bool? HiddenStringsProofreadersAccess { get; set; }
 
-    [Display("Use global TM")] public bool? UseGlobalTm { get; set; }
-
     [Display("Skip untranslated strings")] public bool? SkipUntranslatedStrings { get; set; }
 
     [Display("Skip untranslated files")] public bool? SkipUntranslatedFiles { get; set; }
-
-    [Display("Export approved only")] public bool? ExportApprovedOnly { get; set; }
 
     [Display("In context")] public bool? InContext { get; set; }
 
@@ -52,4 +50,39 @@ public class AddNewProjectRequest
     public string? InContextPseudoLanguageId { get; set; }
 
     [Display("QA check is active")] public bool? QaCheckIsActive { get; set; }
+    
+    [Display("Translate duplicates")]
+    [DataSource(typeof(TranslateDuplicatesDataHandler))]
+    public string? TranslateDuplicates { get; set; }
+
+    [Display("Tags detection")]
+    [DataSource(typeof(TagsDetectionDataHandler))]
+    public string? TagsDetection { get; set; }
+
+    [Display("Delayed workflow start")]
+    public bool? DelayedWorkflowStart { get; set; }
+
+    [Display("Export with min pprovals count")]
+    public int? ExportWithMinApprovalsCount { get; set; }
+
+    [Display("Normalize placeholder")]
+    public bool? NormalizePlaceholder { get; set; }
+
+    [Display("Save meta info in source")]
+    public bool? SaveMetaInfoInSource { get; set; }
+
+    [Display("Custom QA check IDs")]
+    public IEnumerable<string>? CustomQaCheckIds { get; set; }
+
+    [Display("Glossary access")]
+    public bool? GlossaryAccess { get; set; }
+
+    [Display("Manager language completed")]
+    public bool? ManagerLanguageCompleted { get; set; }
+
+    [Display("Translator new strings")]
+    public bool? TranslatorNewStrings { get; set; }
+
+    [Display("Manager new strings")]
+    public bool? ManagerNewStrings { get; set; }
 }

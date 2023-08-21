@@ -26,7 +26,7 @@ public class TaskActions : BaseInvocable
     public TaskActions(InvocationContext invocationContext) : base(invocationContext)
     {
     }
-    
+
     [Action("List tasks", Description = "List all tasks")]
     public async Task<ListTasksResponse> ListTasks([ActionParameter] ListTasksRequest input)
     {
@@ -66,22 +66,22 @@ public class TaskActions : BaseInvocable
         var client = new CrowdinEnterpriseClient(Creds);
         var request = new EnterpriseTaskCreateForm()
         {
+            WorkflowStepId = IntParser.Parse(input.WorkflowStepId, nameof(input.WorkflowStepId))!.Value,
             Title = input.Title,
             LanguageId = input.LanguageId,
             FileIds = input.FileIds.Select(fileId => IntParser.Parse(fileId, nameof(fileId))!.Value).ToList(),
-            Type = EnumParser.Parse<TaskType>(input.Type, nameof(input.Type), EnumValues.TaskType)!.Value,
             Status = EnumParser.Parse<TaskStatus>(input.Status, nameof(input.Status), EnumValues.TaskStatus),
             Description = input.Description,
             SplitFiles = input.SplitFiles,
             SkipAssignedStrings = input.SkipAssignedStrings,
-            SkipUntranslatedStrings = input.SkipUntranslatedStrings,
             LabelIds = input.LabelIds?.Select(labelId => IntParser.Parse(labelId, nameof(labelId))!.Value).ToList(),
-            Assignees = input.Assignees?.Select(assigneeId => new TaskAssigneeForm { Id = IntParser.Parse(assigneeId, nameof(assigneeId))!.Value }).ToList(),
+            Assignees = input.Assignees?.Select(assigneeId => new TaskAssigneeForm
+                { Id = IntParser.Parse(assigneeId, nameof(assigneeId))!.Value }).ToList(),
             DeadLine = input.Deadline,
             DateFrom = input.DateFrom,
             DateTo = input.DateTo,
         };
-        
+
         var response = await client.Tasks.AddTask(intProjectId!.Value, request);
         return new(response);
     }
@@ -113,7 +113,7 @@ public class TaskActions : BaseInvocable
 
         if (downloadLink is null)
             throw new("No string found for this task");
-        
+
         var fileContent = await FileDownloader.DownloadFileBytes(downloadLink.Url);
 
         return new(fileContent);

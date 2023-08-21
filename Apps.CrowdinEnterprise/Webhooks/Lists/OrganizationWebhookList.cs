@@ -26,7 +26,7 @@ public class OrganizationWebhookList
     public Task<WebhookResponse<GroupWebhookResponse>> OnGroupDeleted(WebhookRequest webhookRequest)
         => HandleWebhookRequest<GroupWebhookResponse, GroupWrapper>(webhookRequest);
 
-    public Task<WebhookResponse<T>> HandleWebhookRequest<T, TV>(WebhookRequest webhookRequest) where T : CrowdinWebhookResponse<TV>, new()
+    private Task<WebhookResponse<T>> HandleWebhookRequest<T, TV>(WebhookRequest webhookRequest) where T : CrowdinWebhookResponse<TV>, new()
     {
         var data = JsonConvert.DeserializeObject<TV>(webhookRequest.Body.ToString());
 

@@ -7,6 +7,8 @@ namespace Apps.CrowdinEnterprise.Models.Request.Task;
 
 public class AddNewTaskRequest
 {
+    [Display("Workflow step ID")]
+    public string WorkflowStepId { get; set; }
     public string Title { get; set; }
 
     [Display("Language")]
@@ -15,9 +17,6 @@ public class AddNewTaskRequest
 
     [Display("File IDs")]
     public IEnumerable<string> FileIds { get; set; }
-
-    [DataSource(typeof(TaskTypeHandler))]
-    public string Type { get; set; }
 
     [DataSource(typeof(TaskStatusHandler))]
     public string? Status { get; set; }
@@ -29,12 +28,6 @@ public class AddNewTaskRequest
 
     [Display("Skip assigned strings")]
     public bool? SkipAssignedStrings { get; set; }
-
-    [Display("Skip untranslated strings")]
-    public bool? SkipUntranslatedStrings { get; set; }
-
-    [Display("Include pre-translated strings only")]
-    public bool? IncludePreTranslatedStringsOnly { get; set; }
 
     [Display("Label IDs")]
     public IEnumerable<string>? LabelIds { get; set; }

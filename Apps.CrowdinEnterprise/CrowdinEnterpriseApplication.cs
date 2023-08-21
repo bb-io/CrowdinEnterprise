@@ -5,16 +5,11 @@ using Blackbird.Applications.Sdk.Common.Authentication.OAuth2;
 namespace Apps.CrowdinEnterprise;
 
 //TODO:
-// add project groups
-// reviewed source files
-// add/delete mte
 // user management
 // team actions
-// group created/deleted webhooks
-// check if webhooks return enterprise project models
     
 public class CrowdinEnterpriseApplication : IApplication
-{enterprise
+{
     public string Name
     {
         get => "Crowdin Enterprise";

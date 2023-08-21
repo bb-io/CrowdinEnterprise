@@ -1,5 +1,6 @@
 ﻿using Apps.CrowdinEnterprise.Api;
 using Apps.CrowdinEnterprise.Constants;
+using Apps.CrowdinEnterprise.DataSourceHandlers;
 using Apps.CrowdinEnterprise.Models.Entities;
 using Apps.CrowdinEnterprise.Models.Request.MachineTranslation;
 using Apps.CrowdinEnterprise.Models.Response.MachineTranslation;
@@ -7,6 +8,7 @@ using Apps.CrowdinEnterprise.Utils;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Authentication;
+using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Utils.Parsers;
 using Crowdin.Api.MachineTranslationEngines;
@@ -22,13 +24,14 @@ public class MachineTranslationActions : BaseInvocable
     public MachineTranslationActions(InvocationContext invocationContext) : base(invocationContext)
     {
     }
-    
+
     [Action("List machine translation engines", Description = "List all machine translation engines")]
     public async Task<ListMtEnginesResponse> ListMtEnginges(
-        [ActionParameter] [Display("Group ID")] string? groupId)
+        [ActionParameter] [Display("Group ID")] [DataSource(typeof(ProjectGroupDataHandler))]
+        string? groupId)
     {
         var intGroupId = IntParser.Parse(groupId, nameof(groupId));
-        
+
         var client = new CrowdinEnterpriseClient(Creds);
 
         var items = await Paginator.Paginate((lim, offset)

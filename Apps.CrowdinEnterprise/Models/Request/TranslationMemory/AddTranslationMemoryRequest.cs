@@ -12,5 +12,7 @@ public class AddTranslationMemoryRequest
     [DataSource(typeof(LanguagesDataHandler))]
     public string LanguageId { get; set; }
     
-    [Display("Group ID")] public string? GroupId { get; set; }
+    [Display("Group ID")] 
+    [DataSource(typeof(ProjectGroupDataHandler))]
+    public string? GroupId { get; set; }
 }

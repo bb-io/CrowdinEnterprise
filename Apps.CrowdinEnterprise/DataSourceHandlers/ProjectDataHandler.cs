@@ -23,7 +23,7 @@ public class ProjectDataHandler : BaseInvocable, IAsyncDataSourceHandler
         var client = new CrowdinEnterpriseClient(Creds);
 
         var items = await Paginator.Paginate((lim, offset)
-            => client.ProjectsGroups.ListProjects<ProjectBase>(null, null, false, lim, offset));
+            => client.ProjectsGroups.ListProjects<EnterpriseProject>(null, null, false, lim, offset));
 
         return items
             .Where(x => context.SearchString == null ||
