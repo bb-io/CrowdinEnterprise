@@ -4,7 +4,7 @@ namespace Apps.CrowdinEnterprise.Webhooks.Models.Payload.Translation.Response;
 
 public class OldTranslationWebhookResponse
 {
-    [Display("ID")]
+    [Display("Translation ID")]
     public string Id { get; set; }
 
     [Display("Text")]

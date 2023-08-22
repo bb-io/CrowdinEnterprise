@@ -11,12 +11,13 @@ public class NewTranslationWebhookResponse : OldTranslationWebhookResponse
     [Display("Language ID")]
     public string LanguageId { get; set; }
     
-    public StringWebhookResponseEntity String { get; set; }
+    [Display("Source string")]
+    public StringWebhookResponseEntity SourceString { get; set; }
     
     public NewTranslationWebhookResponse(NewTranslationPayload payload) : base(payload)
     {
         User = new(payload.User);
         LanguageId = payload.TargetLanguage.Id;
-        String = new(payload.String);
+        SourceString = new(payload.String);
     }
 }

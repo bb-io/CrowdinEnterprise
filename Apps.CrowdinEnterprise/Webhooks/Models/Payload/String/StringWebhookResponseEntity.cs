@@ -4,7 +4,7 @@ namespace Apps.CrowdinEnterprise.Webhooks.Models.Payload.String;
 
 public class StringWebhookResponseEntity
 {
-    [Display("ID")] public string Id { get; set; }
+    [Display("String ID")] public string Id { get; set; }
     [Display("Project ID")] public string ProjectId { get; set; }
     [Display("File ID")] public string FileId { get; set; }
     public string Identifier { get; set; }

@@ -5,7 +5,7 @@ namespace Apps.CrowdinEnterprise.Models.Entities;
 
 public class UserEntity
 {
-    [Display("ID")] public string Id { get; set; }
+    [Display("User ID")] public string Id { get; set; }
     public string Username { get; set; }
     [Display("Full name")] public string FullName { get; set; }
     [Display("Avatar url")] public string AvatarUrl { get; set; }
