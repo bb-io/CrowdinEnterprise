@@ -61,7 +61,8 @@ public class UserActions : BaseInvocable
             Email = input.Email,
             FirstName = input.FirstName,
             LastName = input.LastName,
-            TimeZone = input.Timezone
+            TimeZone = input.Timezone,
+            AdminAccess = input.IsAdmin
         });
         
         return new(response);

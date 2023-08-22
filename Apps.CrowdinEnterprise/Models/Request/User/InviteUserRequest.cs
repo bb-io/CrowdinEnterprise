@@ -13,4 +13,7 @@ public class InviteUserRequest
     public string? LastName { get; set; }
     
     public string? Timezone { get; set; }
+    
+    [Display("Is admin")]
+    public bool? IsAdmin { get; set; }
 }
