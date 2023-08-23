@@ -13,7 +13,7 @@ public class OldTranslationWebhookResponse
     [Display("Plural category name")]
     public string PluralCategoryName { get; set; }
 
-    public int Rating { get; set; }
+    public int? Rating { get; set; }
     
     public string Provider { get; set; }
     
@@ -21,7 +21,7 @@ public class OldTranslationWebhookResponse
     public bool IsPretranslated { get; set; }
 
     [Display("Created at")]
-    public DateTime CreatedAt { get; set; }
+    public DateTime? CreatedAt { get; set; }
 
     public OldTranslationWebhookResponse(OldTranslationPayload payload)
     {

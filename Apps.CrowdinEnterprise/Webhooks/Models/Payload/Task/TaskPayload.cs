@@ -16,7 +16,7 @@ public class TaskPayload
     public TaskProgress Progress { get; set; }
     public string Description { get; set; }
     public string TranslationUrl { get; set; }
-    public DateTime Deadline { get; set; }
+    public DateTime? Deadline { get; set; }
     public DateTime CreatedAt { get; set; }
     
     public LanguagePayload SourceLanguage { get; set; }

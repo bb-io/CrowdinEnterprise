@@ -2,5 +2,5 @@
 
 public class FileWrapper
 {
-    public FilePayload File { get; set; }
+    public FilePayloadWithProject File { get; set; }
 }

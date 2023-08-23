@@ -14,12 +14,12 @@ public class TaskStatusChangedWebhookResponse : CrowdinWebhookResponse<TaskStatu
     [Display("New status")] public string NewStatus { get; set; }
     [Display("Status")] public string Status { get; set; }
     [Display("Title")] public string Title { get; set; }
-    [Display("Assignee IDs")] public IEnumerable<string> AssigneeIds { get; set; }
+    [Display("Assignee IDs")] public IEnumerable<string>? AssigneeIds { get; set; }
     [Display("File IDs")] public IEnumerable<string> FileIds { get; set; }
     [Display("Progress")] public TaskProgress Progress { get; set; }
     [Display("Description")] public string Description { get; set; }
     [Display("Translation URL")] public string TranslationUrl { get; set; }
-    [Display("Deadline")] public DateTime Deadline { get; set; }
+    [Display("Deadline")] public DateTime? Deadline { get; set; }
     [Display("Created at")] public DateTime CreatedAt { get; set; }
     [Display("Source language ID")] public string SourceLanguageId { get; set; }
     [Display("Target language ID")] public string TargetLanguageId { get; set; }
@@ -35,7 +35,7 @@ public class TaskStatusChangedWebhookResponse : CrowdinWebhookResponse<TaskStatu
         NewStatus = wrapper.Task.NewStatus;
         Status = wrapper.Task.Status;
         Title = wrapper.Task.Title;
-        AssigneeIds = wrapper.Task.Assignees.Select(x => x.Id.ToString());
+        AssigneeIds = wrapper.Task.Assignees?.Select(x => x.Id.ToString());
         FileIds = wrapper.Task.FileIds.Select(x => x.ToString());
         Progress = wrapper.Task.Progress;
         Description = wrapper.Task.Description;

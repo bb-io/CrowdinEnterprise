@@ -8,11 +8,11 @@ public class OldTranslationPayload
 
     public string PluralCategoryName { get; set; }
 
-    public int Rating { get; set; }
+    public int? Rating { get; set; }
     
     public string Provider { get; set; }
     
     public bool IsPretranslated { get; set; }
 
-    public DateTime CreatedAt { get; set; }
+    public DateTime? CreatedAt { get; set; }
 }

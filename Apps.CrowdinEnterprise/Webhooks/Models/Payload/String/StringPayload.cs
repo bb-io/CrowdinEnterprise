@@ -1,5 +1,5 @@
-﻿using Crowdin.Api.ProjectsGroups;
-using Crowdin.Api.SourceFiles;
+﻿using Apps.CrowdinEnterprise.Webhooks.Models.Payload.File;
+using Crowdin.Api.ProjectsGroups;
 
 namespace Apps.CrowdinEnterprise.Webhooks.Models.Payload.String;
 
@@ -13,6 +13,6 @@ public class StringPayload
     public string Url { get; set; }
     public DateTime CreatedAt { get; set; }
     
-    public FileCollectionResource File { get; set; }
+    public FilePayload File { get; set; }
     public EnterpriseProject Project { get; set; }
 }

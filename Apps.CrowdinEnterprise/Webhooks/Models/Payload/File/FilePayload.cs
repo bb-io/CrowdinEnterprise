@@ -1,9 +1,15 @@
-﻿using Crowdin.Api.ProjectsGroups;
-using Crowdin.Api.SourceFiles;
+﻿using Newtonsoft.Json;
 
 namespace Apps.CrowdinEnterprise.Webhooks.Models.Payload.File;
 
-public class FilePayload : FileCollectionResource
+public class FilePayload
 {
-    public EnterpriseProject Project { get; set; }
+    public string Id { get; set; }
+    public string? BranchId { get; set; }
+    public string? DirectoryId { get; set; }
+    public string Name { get; set; }
+    public string? Title { get; set; }
+    public string Type { get; set; }
+    public string Path { get; set; }
+    public string Status { get; set; }
 }
