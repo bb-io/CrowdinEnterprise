@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json;
-
-namespace Apps.CrowdinEnterprise.Webhooks.Models.Payload.File;
+﻿namespace Apps.CrowdinEnterprise.Webhooks.Models.Payload.File;
 
 public class FilePayload
 {

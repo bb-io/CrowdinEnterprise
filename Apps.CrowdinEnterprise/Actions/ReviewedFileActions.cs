@@ -1,4 +1,5 @@
-﻿using Apps.CrowdinEnterprise.Api;
+﻿using System.Net.Mime;
+using Apps.CrowdinEnterprise.Api;
 using Apps.CrowdinEnterprise.Models.Entities;
 using Apps.CrowdinEnterprise.Models.Request.Project;
 using Apps.CrowdinEnterprise.Models.Response.File;
@@ -11,6 +12,7 @@ using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Utils.Extensions.Files;
 using Blackbird.Applications.Sdk.Utils.Parsers;
 using Blackbird.Applications.Sdk.Utils.Utilities;
+using File = Blackbird.Applications.Sdk.Common.Files.File;
 using FileEntity = Blackbird.Applications.Sdk.Utils.Models.FileEntity;
 
 namespace Apps.CrowdinEnterprise.Actions;
@@ -87,7 +89,11 @@ public class ReviewedFileActions : BaseInvocable
         var response = await client.SourceFiles.DownloadReviewedSourceFiles(intProjectId, intBuildId);
         var file = await FileDownloader.DownloadFileBytes(response.Url);
         
-        return new(file);
+        var result = new File(file)
+        {
+            ContentType = MediaTypeNames.Application.Octet
+        };
+        return new(result);
     }
     
     [Action("Download reviewed source files", Description = "Download reviewed source files of specific build")]
@@ -96,7 +102,7 @@ public class ReviewedFileActions : BaseInvocable
         string buildId)
     {
         var zip = await DownloadReviewedSourceFilesAsZip(project, buildId);
-        var files = zip.File.GetFilesFromZip();
+        var files = zip.File.Bytes.GetFilesFromZip();
 
         var result = new List<FileEntity>();
         await foreach (var file in files)
