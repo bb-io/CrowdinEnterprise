@@ -117,6 +117,7 @@ public class TranslationMemoryActions : BaseInvocable
 
         var result = new File(fileContent)
         {
+            Name = $"{input.TranslationMemoryId}",
             ContentType = MediaTypeNames.Application.Octet
         };
         return new(result);

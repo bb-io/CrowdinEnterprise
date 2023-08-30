@@ -111,6 +111,7 @@ public class FileActions : BaseInvocable
 
         var result = new File(fileContent)
         {
+            Name = $"File-{fileId}",
             ContentType = MediaTypeNames.Application.Octet
         };
         return new(result);

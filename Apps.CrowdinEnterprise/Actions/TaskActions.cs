@@ -121,6 +121,7 @@ public class TaskActions : BaseInvocable
 
         var result = new File(fileContent)
         {
+            Name = $"Task-{taskId}-string",
             ContentType = MediaTypeNames.Application.Octet
         };
         return new(result);

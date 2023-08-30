@@ -91,6 +91,7 @@ public class ReviewedFileActions : BaseInvocable
         
         var result = new File(file)
         {
+            Name = $"{buildId}.zip",
             ContentType = MediaTypeNames.Application.Octet
         };
         return new(result);
