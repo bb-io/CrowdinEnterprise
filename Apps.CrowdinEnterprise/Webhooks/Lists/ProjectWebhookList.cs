@@ -21,8 +21,11 @@ using Apps.CrowdinEnterprise.Webhooks.Models.Payload.Task.Response;
 using Apps.CrowdinEnterprise.Webhooks.Models.Payload.Task.Wrapper;
 using Apps.CrowdinEnterprise.Webhooks.Models.Payload.Translation.Response;
 using Apps.CrowdinEnterprise.Webhooks.Models.Payload.Translation.Wrappers;
+using Apps.CrowdinEnterprise.Webhooks.Parameters;
+using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Webhooks;
 using Newtonsoft.Json;
+using System.Net;
 
 namespace Apps.CrowdinEnterprise.Webhooks.Lists;
 
@@ -62,11 +65,11 @@ public class ProjectWebhookList
     [Webhook("On project approved", typeof(ProjectApprovedHandler), Description = "On project approved")]
     public Task<WebhookResponse<ProjectWithLanguageWebhookResponse>> OnProjectApproved(WebhookRequest webhookRequest)
         => HandleWehookRequest<ProjectWithLanguageWrapper, ProjectWithLanguageWebhookResponse>(webhookRequest);
-    
+
     [Webhook("On project translated", typeof(ProjectTranslatedHandler), Description = "On project translated")]
     public Task<WebhookResponse<ProjectWithLanguageWebhookResponse>> OnProjectTranslated(WebhookRequest webhookRequest)
         => HandleWehookRequest<ProjectWithLanguageWrapper, ProjectWithLanguageWebhookResponse>(webhookRequest);
-    
+
     [Webhook("On project built", typeof(ProjectBuiltHandler), Description = "On project built")]
     public Task<WebhookResponse<ProjectBuiltWebhookResponse>> OnProjectBuilt(WebhookRequest webhookRequest)
         => HandleWehookRequest<ProjectBuildWrapper, ProjectBuiltWebhookResponse>(webhookRequest);
@@ -94,15 +97,15 @@ public class ProjectWebhookList
     [Webhook("On string comment created", typeof(StringCommentCreatedHandler), Description = "On string comment created")]
     public Task<WebhookResponse<StringCommentWebhookResponse>> OnStringCommentCreated(WebhookRequest webhookRequest)
         => HandleWehookRequest<StringCommentWrapper, StringCommentWebhookResponse>(webhookRequest);
-    
+
     [Webhook("On string comment deleted", typeof(StringCommentDeletedHandler), Description = "On string comment deleted")]
     public Task<WebhookResponse<StringCommentWebhookResponse>> OnStringCommentDeleted(WebhookRequest webhookRequest)
-        => HandleWehookRequest<StringCommentWrapper, StringCommentWebhookResponse>(webhookRequest);    
-    
+        => HandleWehookRequest<StringCommentWrapper, StringCommentWebhookResponse>(webhookRequest);
+
     [Webhook("On string comment restored", typeof(StringCommentRestoredHandler), Description = "On string comment restored")]
     public Task<WebhookResponse<StringCommentWebhookResponse>> OnStringCommentRestored(WebhookRequest webhookRequest)
         => HandleWehookRequest<StringCommentWrapper, StringCommentWebhookResponse>(webhookRequest);
-    
+
     [Webhook("On string comment updated", typeof(StringCommentUpdatedHandler), Description = "On string comment updated")]
     public Task<WebhookResponse<StringCommentWebhookResponse>> OnStringCommentUpdated(WebhookRequest webhookRequest)
         => HandleWehookRequest<StringCommentWrapper, StringCommentWebhookResponse>(webhookRequest);
@@ -138,22 +141,42 @@ public class ProjectWebhookList
     [Webhook("On task added", typeof(TaskAddedHandler), Description = "On task added")]
     public Task<WebhookResponse<TaskWebhookResponse>> OnTaskAdded(WebhookRequest webhookRequest)
         => HandleWehookRequest<TaskWrapper, TaskWebhookResponse>(webhookRequest);
-    
+
     [Webhook("On task deleted", typeof(TaskDeletedHandler), Description = "On task deleted")]
     public Task<WebhookResponse<TaskWebhookResponse>> OnTaskDeleted(WebhookRequest webhookRequest)
         => HandleWehookRequest<TaskWrapper, TaskWebhookResponse>(webhookRequest);
-    
+
     [Webhook("On task status changed", typeof(TaskStatusChangedHandler), Description = "On task status changed")]
     public Task<WebhookResponse<TaskStatusChangedWebhookResponse>> OnTaskStatusChanged(WebhookRequest webhookRequest)
         => HandleWehookRequest<TaskStatusChangedWrapper, TaskStatusChangedWebhookResponse>(webhookRequest);
-    
+
     #endregion
 
     #region Translation
 
     [Webhook("On translation updated", typeof(TranslationUpdatedHandler), Description = "On translation updated")]
-    public Task<WebhookResponse<TranslationUpdatedWebhookResponse>> OnTranslationUpdated(WebhookRequest webhookRequest)
-        => HandleWehookRequest<TranslationUpdatedWrapper, TranslationUpdatedWebhookResponse>(webhookRequest);
+    public WebhookResponse<TranslationUpdatedWebhookResponse> OnTranslationUpdated(WebhookRequest webhookRequest, [WebhookParameter] IsPreTranslated pretranslated)
+    {
+        var data = JsonConvert.DeserializeObject<TranslationUpdatedWrapper>(webhookRequest.Body.ToString());
+
+        if (data is null)
+            throw new InvalidCastException(nameof(webhookRequest.Body));
+
+        if (pretranslated.IsNewPretransalted != null && pretranslated.IsNewPretransalted.Value != data.NewTranslation.IsPretranslated)
+            return new WebhookResponse<TranslationUpdatedWebhookResponse> { HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK), ReceivedWebhookRequestType = WebhookRequestType.Preflight };
+
+        if (pretranslated.IsOldPretransalted != null && pretranslated.IsOldPretransalted.Value != data.OldTranslation.IsPretranslated)
+            return new WebhookResponse<TranslationUpdatedWebhookResponse> { HttpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK), ReceivedWebhookRequestType = WebhookRequestType.Preflight };
+
+        var result = new TranslationUpdatedWebhookResponse();
+        result.ConfigureResponse(data);
+
+
+        return new WebhookResponse<TranslationUpdatedWebhookResponse>
+        {
+            Result = result
+        };
+    }
 
     #endregion
 
