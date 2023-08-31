@@ -60,6 +60,9 @@ public class FileActions : BaseInvocable
         [ActionParameter] ProjectRequest project,
         [ActionParameter] AddNewFileRequest input)
     {
+        if (input.StorageId is null && input.File is null)
+            throw new("You need to specfiy one of the parameters: Storage ID or File");
+        
         var intProjectId = IntParser.Parse(project.ProjectId, nameof(project.ProjectId));
         var intStorageId = IntParser.Parse(input.StorageId, nameof(input.StorageId));
         var intBranchId = IntParser.Parse(input.BranchId, nameof(input.BranchId));
@@ -67,9 +70,16 @@ public class FileActions : BaseInvocable
 
         var client = new CrowdinEnterpriseClient(Creds);
 
+        if (intStorageId is null)
+        {
+            var storage = await client.Storage
+                .AddStorage(new MemoryStream(input.File!.Bytes), input.Name);
+            intStorageId = storage.Id;
+        }
+        
         var request = new AddFileRequest
         {
-            StorageId = intStorageId!.Value,
+            StorageId = intStorageId.Value,
             Name = input.Name,
             BranchId = intBranchId,
             DirectoryId = intDirectoryId,

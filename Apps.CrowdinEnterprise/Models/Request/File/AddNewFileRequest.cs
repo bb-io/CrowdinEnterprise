@@ -6,11 +6,13 @@ namespace Apps.CrowdinEnterprise.Models.Request.File;
 
 public class AddNewFileRequest
 {
+    public string Name { get; set; }
+
     [Display("Storage")]
     [DataSource(typeof(StorageDataHandler))]
-    public string StorageId { get; set; }
-
-    public string Name { get; set; }
+    public string? StorageId { get; set; }
+    
+    public Blackbird.Applications.Sdk.Common.Files.File? File { get; set; }
 
     [Display("Branch ID")]
     public string? BranchId { get; set; }
