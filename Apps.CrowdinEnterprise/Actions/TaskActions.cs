@@ -10,7 +10,6 @@ using Apps.CrowdinEnterprise.Utils;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Authentication;
-using Blackbird.Applications.Sdk.Common.Files;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Utils.Parsers;
 using Blackbird.Applications.Sdk.Utils.Utilities;
@@ -118,12 +117,9 @@ public class TaskActions : BaseInvocable
             throw new("No string found for this task");
 
         var fileContent = await FileDownloader.DownloadFileBytes(downloadLink.Url);
+        fileContent.Name = $"Task-{taskId}-string";
 
-        var result = new File(fileContent)
-        {
-            Name = $"Task-{taskId}-string",
-            ContentType = MediaTypeNames.Application.Octet
-        };
-        return new(result);
+
+        return new(fileContent);
     }
 }

@@ -22,7 +22,6 @@ using Apps.CrowdinEnterprise.Webhooks.Models.Payload.Task.Wrapper;
 using Apps.CrowdinEnterprise.Webhooks.Models.Payload.Translation.Response;
 using Apps.CrowdinEnterprise.Webhooks.Models.Payload.Translation.Wrappers;
 using Apps.CrowdinEnterprise.Webhooks.Parameters;
-using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Webhooks;
 using Newtonsoft.Json;
 using System.Net;

@@ -25,7 +25,7 @@ public class FileActions : BaseInvocable
     public FileActions(InvocationContext invocationContext) : base(invocationContext)
     {
     }
-    
+
     [Action("List files", Description = "List project files")]
     public async Task<ListFilesResponse> ListFiles(
         [ActionParameter] ProjectRequest project,
@@ -62,7 +62,7 @@ public class FileActions : BaseInvocable
     {
         if (input.StorageId is null && input.File is null)
             throw new("You need to specfiy one of the parameters: Storage ID or File");
-        
+
         var intProjectId = IntParser.Parse(project.ProjectId, nameof(project.ProjectId));
         var intStorageId = IntParser.Parse(input.StorageId, nameof(input.StorageId));
         var intBranchId = IntParser.Parse(input.BranchId, nameof(input.BranchId));
@@ -70,17 +70,29 @@ public class FileActions : BaseInvocable
 
         var client = new CrowdinEnterpriseClient(Creds);
 
+        var fileName = input.Name ?? input.File?.Name;
+
         if (intStorageId is null)
         {
             var storage = await client.Storage
-                .AddStorage(new MemoryStream(input.File!.Bytes), input.Name);
+                .AddStorage(new MemoryStream(input.File!.Bytes), fileName!);
             intStorageId = storage.Id;
         }
-        
+
+        if (input.File is null)
+        {
+            var storage = await new StorageActions(InvocationContext).GetStorage(new()
+            {
+                StorageId = intStorageId.ToString()!
+            });
+
+            fileName = storage.FileName;
+        }
+
         var request = new AddFileRequest
         {
             StorageId = intStorageId.Value,
-            Name = input.Name,
+            Name = fileName!,
             BranchId = intBranchId,
             DirectoryId = intDirectoryId,
             Title = input.Title,
@@ -91,7 +103,7 @@ public class FileActions : BaseInvocable
 
         return new(file);
     }
-    
+
     [Action("Get file", Description = "Get specific file info")]
     public async Task<FileEntity> GetFile(
         [ActionParameter] ProjectRequest project,
@@ -104,8 +116,8 @@ public class FileActions : BaseInvocable
 
         var file = await client.SourceFiles.GetFile<FileResource>(intProjectId!.Value, intFileId!.Value);
         return new(file);
-    }      
-    
+    }
+
     [Action("Download file", Description = "Download specific file")]
     public async Task<DownloadFileResponse> DownloadFile(
         [ActionParameter] ProjectRequest project,
@@ -117,16 +129,13 @@ public class FileActions : BaseInvocable
         var client = new CrowdinEnterpriseClient(Creds);
 
         var downloadLink = await client.SourceFiles.DownloadFile(intProjectId!.Value, intFileId!.Value);
-        var fileContent = await FileDownloader.DownloadFileBytes(downloadLink.Url);
 
-        var result = new File(fileContent)
-        {
-            Name = $"File-{fileId}",
-            ContentType = MediaTypeNames.Application.Octet
-        };
-        return new(result);
-    }   
-    
+        var fileContent = await FileDownloader.DownloadFileBytes(downloadLink.Url);
+        fileContent.Name = $"File-{fileId}";
+
+        return new(fileContent);
+    }
+
     [Action("Delete file", Description = "Delete specific file")]
     public Task DeleteFile(
         [ActionParameter] ProjectRequest project,

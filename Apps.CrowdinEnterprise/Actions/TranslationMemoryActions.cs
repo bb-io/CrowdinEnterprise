@@ -9,7 +9,6 @@ using Apps.CrowdinEnterprise.Utils;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Authentication;
-using Blackbird.Applications.Sdk.Common.Files;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Utils.Parsers;
 using Blackbird.Applications.Sdk.Utils.Utilities;
@@ -113,14 +112,11 @@ public class TranslationMemoryActions : BaseInvocable
         var client = new CrowdinEnterpriseClient(Creds);
 
         var response = await client.TranslationMemory.DownloadTm(intTmId!.Value, input.ExportId);
-        var fileContent = await FileDownloader.DownloadFileBytes(response.Url);
 
-        var result = new File(fileContent)
-        {
-            Name = $"{input.TranslationMemoryId}",
-            ContentType = MediaTypeNames.Application.Octet
-        };
-        return new(result);
+        var fileContent = await FileDownloader.DownloadFileBytes(response.Url);
+        fileContent.Name = $"{input.TranslationMemoryId}";
+        
+        return new(fileContent);
     }
 
     [Action("Add translation memory segment", Description = "Add new segment to the translation memory")]

@@ -13,7 +13,6 @@ using Blackbird.Applications.Sdk.Utils.Extensions.Files;
 using Blackbird.Applications.Sdk.Utils.Parsers;
 using Blackbird.Applications.Sdk.Utils.Utilities;
 using File = Blackbird.Applications.Sdk.Common.Files.File;
-using FileEntity = Blackbird.Applications.Sdk.Utils.Models.FileEntity;
 
 namespace Apps.CrowdinEnterprise.Actions;
 
@@ -87,14 +86,11 @@ public class ReviewedFileActions : BaseInvocable
         var client = new CrowdinEnterpriseClient(Creds);
 
         var response = await client.SourceFiles.DownloadReviewedSourceFiles(intProjectId, intBuildId);
-        var file = await FileDownloader.DownloadFileBytes(response.Url);
         
-        var result = new File(file)
-        {
-            Name = $"{buildId}.zip",
-            ContentType = MediaTypeNames.Application.Octet
-        };
-        return new(result);
+        var file = await FileDownloader.DownloadFileBytes(response.Url);
+        file.Name = $"{buildId}.zip";
+        
+        return new(file);
     }
     
     [Action("Download reviewed source files", Description = "Download reviewed source files of specific build")]
@@ -105,10 +101,10 @@ public class ReviewedFileActions : BaseInvocable
         var zip = await DownloadReviewedSourceFilesAsZip(project, buildId);
         var files = zip.File.Bytes.GetFilesFromZip();
 
-        var result = new List<FileEntity>();
+        var result = new List<File>();
         await foreach (var file in files)
             // Removing folders from the final result
-            if(file.Content.Any())
+            if(file.Bytes.Any())
                 result.Add(file);
 
         return new(result);

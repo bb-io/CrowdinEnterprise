@@ -6,7 +6,7 @@ namespace Apps.CrowdinEnterprise.Models.Request.File;
 
 public class AddNewFileRequest
 {
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     [Display("Storage")]
     [DataSource(typeof(StorageDataHandler))]
