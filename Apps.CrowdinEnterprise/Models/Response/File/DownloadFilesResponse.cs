@@ -1,4 +1,6 @@
 ﻿
+using Blackbird.Applications.Sdk.Utils.Models;
+
 namespace Apps.CrowdinEnterprise.Models.Response.File;
 
-public record DownloadFilesResponse(List<Blackbird.Applications.Sdk.Common.Files.File> Files);
+public record DownloadFilesResponse(BlackbirdFile[] Files);

@@ -48,13 +48,19 @@ public class DirectoryActions : CrowdinActions
         [ActionParameter] ProjectRequest project,
         [ActionParameter] AddNewDirectoryRequest input)
     {
-        var folders = input.Path.Trim('/').Split("/");
-
-        if (folders.Length == 1)
-        {
-            var directory = await CreateSingleDirectory(project, input);
-            return new(directory);
-        }
+         var purePath = input.PathContainsFile is true
+            ? input.Path.Replace(Path.GetFileName(input.Path), string.Empty)
+            : input.Path;
+        
+        if(string.IsNullOrWhiteSpace(purePath))
+            return new()
+            {
+                Id = null,
+                ProjectId = project.ProjectId,
+                Name = "Root"
+            };
+        
+        var folders = purePath.Trim('/').Split("/");
 
         var allDirs = await ListDirectories(project, new());
 

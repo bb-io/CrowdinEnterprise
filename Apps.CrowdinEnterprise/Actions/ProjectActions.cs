@@ -1,5 +1,4 @@
-﻿using System.IO.Compression;
-using Apps.CrowdinEnterprise.Api;
+﻿using Apps.CrowdinEnterprise.Api;
 using Apps.CrowdinEnterprise.Constants;
 using Apps.CrowdinEnterprise.Models.Entities;
 using Apps.CrowdinEnterprise.Models.Request.Project;
@@ -15,7 +14,6 @@ using Blackbird.Applications.Sdk.Utils.Parsers;
 using Blackbird.Applications.Sdk.Utils.Utilities;
 using Crowdin.Api.ProjectsGroups;
 using Crowdin.Api.Translations;
-using File = Blackbird.Applications.Sdk.Common.Files.File;
 
 namespace Apps.CrowdinEnterprise.Actions;
 
@@ -164,12 +162,14 @@ public class ProjectActions : BaseInvocable
         [ActionParameter] BuildRequest build)
     {
         var filesArchive = await DownloadTranslationsAsZip(project, build);
-        var files = filesArchive.File.Bytes.GetFilesFromZip();
-
-        var result = new List<File>();
-        await foreach (var file in files)
-            result.Add(file);
-
+        var files = await filesArchive.File.Bytes.GetFilesFromZip();
+     
+        var result = files.Where(x => x.File.Bytes.Any()).ToArray();
+        
+        // Cleaning files path from the root folder of the archive
+        result.ToList().ForEach(x =>
+            x.Path = string.Join('/', x.Path.Split("/").Skip(1)));
+        
         return new(result);
     }
 }
