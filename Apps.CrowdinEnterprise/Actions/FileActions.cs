@@ -184,7 +184,9 @@ public class FileActions : BaseInvocable
         var downloadLink = await client.SourceFiles.DownloadFile(intProjectId!.Value, intFileId!.Value);
 
         var fileContent = await FileDownloader.DownloadFileBytes(downloadLink.Url);
-        fileContent.Name = $"File-{file.FileId}";
+        var fileDetails = await GetFile(project, file);
+        
+        fileContent.Name = fileDetails.Name;
 
         return new(fileContent);
     }
