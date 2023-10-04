@@ -1,4 +1,5 @@
-﻿using Apps.CrowdinEnterprise.Api;
+﻿using System.Net.Mime;
+using Apps.CrowdinEnterprise.Api;
 using Apps.CrowdinEnterprise.Models.Entities;
 using Apps.CrowdinEnterprise.Models.Request.File;
 using Apps.CrowdinEnterprise.Models.Request.File.Base;
@@ -187,6 +188,9 @@ public class FileActions : BaseInvocable
         var fileDetails = await GetFile(project, file);
         
         fileContent.Name = fileDetails.Name;
+        fileContent.ContentType = fileContent.ContentType == MediaTypeNames.Text.Plain
+            ? MediaTypeNames.Application.Octet
+            : fileContent.ContentType;
 
         return new(fileContent);
     }
