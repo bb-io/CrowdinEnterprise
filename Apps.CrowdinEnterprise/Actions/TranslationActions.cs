@@ -135,9 +135,26 @@ public class TranslationActions : BaseInvocable
             Text = input.Text,
             PluralCategoryName = EnumParser.Parse<PluralCategoryName>(input.PluralCategoryName, nameof(input.PluralCategoryName), EnumValues.PluralCategoryName)
         };
-        
-        var response = await client.StringTranslations.AddTranslation(intProjectId!.Value,request);
-        return new(response);
+
+        try
+        {
+            var response = await client.StringTranslations.AddTranslation(intProjectId!.Value, request);
+            return new(response);
+        }
+        catch (Exception ex)
+        {
+            if (ex.Message is not Errors.IdenticalTranslation)
+                throw;
+
+            var translations = await ListTranslations(new()
+            {
+                ProjectId = input.ProjectId,
+                StringId = input.StringId,
+                LanguageId = input.LanguageId
+            });
+
+            return translations.Translations.First(x => x.Text == input.Text);
+        }
     }
     
     [Action("Delete translation", Description = "Delete specific translation")]
