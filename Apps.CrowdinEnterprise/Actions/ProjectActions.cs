@@ -9,6 +9,7 @@ using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Authentication;
 using Blackbird.Applications.Sdk.Common.Invocation;
+using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using Blackbird.Applications.Sdk.Utils.Extensions.Files;
 using Blackbird.Applications.Sdk.Utils.Parsers;
 using Blackbird.Applications.Sdk.Utils.Utilities;
@@ -23,8 +24,12 @@ public class ProjectActions : BaseInvocable
     private AuthenticationCredentialsProvider[] Creds =>
         InvocationContext.AuthenticationCredentialsProviders.ToArray();
 
-    public ProjectActions(InvocationContext invocationContext) : base(invocationContext)
+    private readonly IFileManagementClient _fileManagementClient;
+
+    public ProjectActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient) : base(
+        invocationContext)
     {
+        _fileManagementClient = fileManagementClient;
     }
 
     [Action("List projects", Description = "List all projects")]
@@ -70,9 +75,8 @@ public class ProjectActions : BaseInvocable
             VendorId = IntParser.Parse(input.VendorId, nameof(input.VendorId)),
             MtEngineId = IntParser.Parse(input.MtEngineId, nameof(input.MtEngineId)),
             TranslateDuplicates = EnumParser.Parse<DupTranslateAction>(input.TranslateDuplicates,
-                nameof(input.TranslateDuplicates), EnumValues.TranslateDuplicates),
-            TagsDetection = EnumParser.Parse<TagsDetectionAction>(input.TagsDetection, nameof(input.TagsDetection),
-                EnumValues.TagsDetection),
+                nameof(input.TranslateDuplicates)),
+            TagsDetection = EnumParser.Parse<TagsDetectionAction>(input.TagsDetection, nameof(input.TagsDetection)),
             DelayedWorkflowStart = input.DelayedWorkflowStart,
             ExportWithMinApprovalsCount = input.ExportWithMinApprovalsCount,
             NormalizePlaceholder = input.NormalizePlaceholder,
@@ -150,7 +154,7 @@ public class ProjectActions : BaseInvocable
         if (response.Link is null)
             throw new("Project build is in progress, you can't download the data now");
 
-        var file = await FileDownloader.DownloadFileBytes(response.Link.Url);
+        var file = await FileDownloader.DownloadFileBytes(response.Link.Url, _fileManagementClient);
         file.Name = $"{project.ProjectId}";
 
         return new(file);
@@ -162,14 +166,17 @@ public class ProjectActions : BaseInvocable
         [ActionParameter] BuildRequest build)
     {
         var filesArchive = await DownloadTranslationsAsZip(project, build);
-        var files = await filesArchive.File.Bytes.GetFilesFromZip();
-     
-        var result = files.Where(x => x.File.Bytes.Any()).ToArray();
-        
+
+        var zipFile = await _fileManagementClient.DownloadAsync(filesArchive.File);
+        var zipBytes = await zipFile.GetByteData();
+        var files = await zipBytes.GetFilesFromZip(_fileManagementClient);
+
+        var result = files.Where(x => x.File.Size > 0).ToArray();
+
         // Cleaning files path from the root folder of the archive
         result.ToList().ForEach(x =>
             x.Path = string.Join('/', x.Path.Split("/").Skip(1)));
-        
+
         return new(result);
     }
 }

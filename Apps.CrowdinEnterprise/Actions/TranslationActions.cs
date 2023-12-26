@@ -24,7 +24,7 @@ public class TranslationActions : BaseInvocable
     public TranslationActions(InvocationContext invocationContext) : base(invocationContext)
     {
     }
-    
+
     [Action("Apply pre-translation", Description = "Apply pre-translation to chosen files")]
     public async Task<PreTranslationEntity> PreTranslate(
         [ActionParameter] ProjectRequest project,
@@ -50,15 +50,16 @@ public class TranslationActions : BaseInvocable
 
         return new(response);
     }
+
     [Action("List language translations", Description = "List project language translations")]
     public async Task<ListTranslationsResponse> ListLangTranslations(
         [ActionParameter] ListLanguageTranslationsRequest input)
     {
         var intProjectId = IntParser.Parse(input.ProjectId, nameof(input.ProjectId));
         var intFileId = IntParser.Parse(input.FileId, nameof(input.FileId));
-    
+
         var client = new CrowdinEnterpriseClient(Creds);
-    
+
         var items = await Paginator.Paginate((lim, offset) =>
         {
             var request = new LanguageTranslationsListParams
@@ -75,7 +76,7 @@ public class TranslationActions : BaseInvocable
         });
 
         var castedItems = items.Cast<PlainLanguageTranslations>();
-       
+
         var translations = castedItems.Select(x => new TranslationEntity(x)).ToArray();
         return new(translations);
     }
@@ -133,7 +134,8 @@ public class TranslationActions : BaseInvocable
             StringId = intStringId!.Value,
             LanguageId = input.LanguageId,
             Text = input.Text,
-            PluralCategoryName = EnumParser.Parse<PluralCategoryName>(input.PluralCategoryName, nameof(input.PluralCategoryName), EnumValues.PluralCategoryName)
+            PluralCategoryName =
+                EnumParser.Parse<PluralCategoryName>(input.PluralCategoryName, nameof(input.PluralCategoryName))
         };
 
         try
@@ -156,7 +158,7 @@ public class TranslationActions : BaseInvocable
             return translations.Translations.First(x => x.Text == input.Text);
         }
     }
-    
+
     [Action("Delete translation", Description = "Delete specific translation")]
     public Task DeleteTranslation([ActionParameter] DeleteTranslationRequest input)
     {
