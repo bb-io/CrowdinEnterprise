@@ -10,6 +10,7 @@ using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Authentication;
 using Blackbird.Applications.Sdk.Common.Invocation;
+using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using Blackbird.Applications.Sdk.Utils.Parsers;
 using Blackbird.Applications.Sdk.Utils.Utilities;
 using Crowdin.Api;
@@ -23,8 +24,12 @@ public class FileActions : BaseInvocable
     private AuthenticationCredentialsProvider[] Creds =>
         InvocationContext.AuthenticationCredentialsProviders.ToArray();
 
-    public FileActions(InvocationContext invocationContext) : base(invocationContext)
+    private readonly IFileManagementClient _fileManagementClient;
+
+    public FileActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient) : base(
+        invocationContext)
     {
+        _fileManagementClient = fileManagementClient;
     }
 
     [Action("List files", Description = "List project files")]
@@ -75,14 +80,15 @@ public class FileActions : BaseInvocable
 
         if (intStorageId is null)
         {
+            var fileStream = await _fileManagementClient.DownloadAsync(input.File);
             var storage = await client.Storage
-                .AddStorage(new MemoryStream(input.File!.Bytes), fileName!);
+                .AddStorage(fileStream, fileName!);
             intStorageId = storage.Id;
         }
 
         if (input.File is null)
         {
-            var storage = await new StorageActions(InvocationContext).GetStorage(new()
+            var storage = await new StorageActions(InvocationContext, _fileManagementClient).GetStorage(new()
             {
                 StorageId = intStorageId.ToString()!
             });
@@ -141,8 +147,9 @@ public class FileActions : BaseInvocable
 
         if (intStorageId is null)
         {
+            var fileStream = await _fileManagementClient.DownloadAsync(input.File);
             var storage = await client.Storage
-                .AddStorage(new MemoryStream(input.File!.Bytes), input.File.Name);
+                .AddStorage(fileStream, input.File.Name);
             intStorageId = storage.Id;
         }
 
@@ -184,7 +191,7 @@ public class FileActions : BaseInvocable
 
         var downloadLink = await client.SourceFiles.DownloadFile(intProjectId!.Value, intFileId!.Value);
 
-        var fileContent = await FileDownloader.DownloadFileBytes(downloadLink.Url);
+        var fileContent = await FileDownloader.DownloadFileBytes(downloadLink.Url, _fileManagementClient);
         var fileDetails = await GetFile(project, file);
         
         fileContent.Name = fileDetails.Name;

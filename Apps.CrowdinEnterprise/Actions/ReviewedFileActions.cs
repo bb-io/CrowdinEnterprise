@@ -8,6 +8,7 @@ using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Authentication;
 using Blackbird.Applications.Sdk.Common.Invocation;
+using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using Blackbird.Applications.Sdk.Utils.Extensions.Files;
 using Blackbird.Applications.Sdk.Utils.Parsers;
 using Blackbird.Applications.Sdk.Utils.Utilities;
@@ -20,8 +21,12 @@ public class ReviewedFileActions : BaseInvocable
     private AuthenticationCredentialsProvider[] Creds 
         => InvocationContext.AuthenticationCredentialsProviders.ToArray();
 
-    public ReviewedFileActions(InvocationContext invocationContext) : base(invocationContext)
+    private readonly IFileManagementClient _fileManagementClient;
+
+    public ReviewedFileActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient) : base(
+        invocationContext)
     {
+        _fileManagementClient = fileManagementClient;
     }
     
     [Action("List reviewed source files builds", Description = "List all reviewed source files builds of specific project")]
@@ -85,7 +90,7 @@ public class ReviewedFileActions : BaseInvocable
 
         var response = await client.SourceFiles.DownloadReviewedSourceFiles(intProjectId, intBuildId);
         
-        var file = await FileDownloader.DownloadFileBytes(response.Url);
+        var file = await FileDownloader.DownloadFileBytes(response.Url, _fileManagementClient);
         file.Name = $"{buildId}.zip";
         
         return new(file);
@@ -97,9 +102,12 @@ public class ReviewedFileActions : BaseInvocable
         string buildId)
     {
         var zip = await DownloadReviewedSourceFilesAsZip(project, buildId);
-        var files = await zip.File.Bytes.GetFilesFromZip();
 
-        var result = files.Where(x => x.File.Bytes.Any()).ToArray();
+        var zipFile = await _fileManagementClient.DownloadAsync(zip.File);
+        var zipBytes = await zipFile.GetByteData();
+        var files = await zipBytes.GetFilesFromZip(_fileManagementClient);
+
+        var result = files.Where(x => x.File.Size > 0).ToArray();
         return new(result);
     }
 }
