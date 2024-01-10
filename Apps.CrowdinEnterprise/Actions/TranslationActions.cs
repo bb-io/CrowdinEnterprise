@@ -145,7 +145,7 @@ public class TranslationActions : BaseInvocable
         }
         catch (Exception ex)
         {
-            if (ex.Message is not Errors.IdenticalTranslation)
+            if (!ex.Message.Contains(Errors.IdenticalTranslation)) 
                 throw;
 
             var translations = await ListTranslations(new()
