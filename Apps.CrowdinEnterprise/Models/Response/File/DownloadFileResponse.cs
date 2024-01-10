@@ -1,3 +1,5 @@
-﻿namespace Apps.CrowdinEnterprise.Models.Response.File;
+﻿using Blackbird.Applications.Sdk.Common.Files;
 
-public record DownloadFileResponse(Blackbird.Applications.Sdk.Common.Files.File File);
+namespace Apps.CrowdinEnterprise.Models.Response.File;
+
+public record DownloadFileResponse(FileReference File);

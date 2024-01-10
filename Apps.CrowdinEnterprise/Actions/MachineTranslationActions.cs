@@ -60,8 +60,7 @@ public class MachineTranslationActions : BaseInvocable
 
         var recognitionProvider =
             EnumParser.Parse<LanguageRecognitionProvider>(input.LanguageRecognitionProvider,
-                nameof(input.LanguageRecognitionProvider),
-                EnumValues.LanguageRecognitionProvider);
+                nameof(input.LanguageRecognitionProvider));
 
         var client = new CrowdinEnterpriseClient(Creds);
 
