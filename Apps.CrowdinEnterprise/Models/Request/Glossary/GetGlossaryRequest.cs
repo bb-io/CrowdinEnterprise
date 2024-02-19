@@ -1,11 +1,9 @@
-﻿using Apps.CrowdinEnterprise.DataSourceHandlers;
-using Blackbird.Applications.Sdk.Common;
-using Blackbird.Applications.Sdk.Common.Dynamic;
+﻿using Blackbird.Applications.Sdk.Common;
 
 namespace Apps.CrowdinEnterprise.Models.Request.Glossary;
 
 public class GetGlossaryRequest
 {
-    [Display("Glossary ID"), DataSource(typeof(GlossaryDataHandler))]
+    [Display("Glossary ID")]
     public string GlossaryId { get; set; }
 }
