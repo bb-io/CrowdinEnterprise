@@ -1,4 +1,5 @@
-﻿using Apps.CrowdinEnterprise.Api;
+﻿using System.Net.Mime;
+using Apps.CrowdinEnterprise.Api;
 using Apps.CrowdinEnterprise.Models.Request.Glossary;
 using Apps.CrowdinEnterprise.Models.Response.Glossary;
 using Blackbird.Applications.Sdk.Common;
@@ -7,6 +8,7 @@ using Blackbird.Applications.Sdk.Common.Authentication;
 using Blackbird.Applications.Sdk.Common.Files;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
+using Blackbird.Applications.Sdk.Utils.Utilities;
 using Crowdin.Api.Glossaries;
 
 namespace Apps.CrowdinEnterprise.Actions;
@@ -30,15 +32,17 @@ public class GlossariesActions : BaseInvocable
         var client = new CrowdinEnterpriseClient(Creds);
         
         var glossaryId = int.Parse(request.GlossaryId);
-        
+        var glossary = await client.Glossaries.GetGlossary(glossaryId);
+
         var exportGlossary = await client.Glossaries.ExportGlossary(glossaryId, new ExportGlossaryRequest { Format = GlossaryFormat.Tbx });
         var downloadLink = await client.Glossaries.DownloadGlossary(glossaryId, exportGlossary.Identifier);
         
-        var stream = await _fileManagementClient.DownloadAsync(new FileReference(new HttpRequestMessage(HttpMethod.Get, downloadLink.Url)));
-        
-        var glossary = await client.Glossaries.GetGlossary(glossaryId);
-        var file = await _fileManagementClient.UploadAsync(stream, "text/tbx", $"{glossary.Name}.tbx");
-        
-        return new(file);
+        var fileContent = await FileDownloader.DownloadFileBytes(downloadLink.Url, _fileManagementClient);
+        fileContent.Name = glossary.Name;
+        fileContent.ContentType = fileContent.ContentType == MediaTypeNames.Text.Plain
+            ? MediaTypeNames.Application.Octet
+            : fileContent.ContentType;
+
+        return new(fileContent);
     }
 }
