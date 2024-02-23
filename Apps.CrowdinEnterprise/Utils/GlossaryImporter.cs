@@ -3,11 +3,10 @@ using Blackbird.Applications.Sdk.Glossaries.Utils.Converters;
 
 namespace Apps.CrowdinEnterprise.Utils;
 
-public class GlossaryImporter(string inputFilePath, string outputFilePath)
+public class GlossaryImporter(Stream fileStream)
 {
-    public async Task ConvertToCrowdinFormat()
+    public async Task<XDocument> ConvertToCrowdinFormat()
     {
-        var fileStream = new FileStream(inputFilePath, FileMode.Open);
         var glossary = await fileStream.ConvertFromTbx();
 
         fileStream.Position = 0; // Reset the stream position
@@ -49,7 +48,7 @@ public class GlossaryImporter(string inputFilePath, string outputFilePath)
                 )
             )
         );
-
-        outputDoc.Save(outputFilePath);
+        
+        return outputDoc;
     }
 }

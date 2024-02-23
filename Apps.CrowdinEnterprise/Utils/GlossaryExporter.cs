@@ -20,13 +20,6 @@ public class GlossaryExporter(Stream inputFileStream)
         };
 
         return glossary;
-
-        /*
-        await using var tbxStream = glossary.ConvertToTbx();
-        var tbxFileReference = await fileManagementClient.UploadAsync(tbxStream, MediaTypeNames.Text.Xml,
-            $"{tbxFileName}.txb");
-        return tbxFileReference;
-        */
     }
 
     private string ExtractSourceDescription(XDocument document)

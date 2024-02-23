@@ -1,5 +1,4 @@
-﻿using System.Net.Mime;
-using Apps.CrowdinEnterprise.Api;
+﻿using Apps.CrowdinEnterprise.Api;
 using Apps.CrowdinEnterprise.Models.Request.Glossary;
 using Apps.CrowdinEnterprise.Models.Response.Glossary;
 using Apps.CrowdinEnterprise.Utils;
@@ -10,6 +9,7 @@ using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using Blackbird.Applications.Sdk.Glossaries.Utils.Converters;
 using Blackbird.Applications.Sdk.Utils.Utilities;
+using Crowdin.Api;
 using Crowdin.Api.Glossaries;
 
 namespace Apps.CrowdinEnterprise.Actions;
@@ -51,5 +51,39 @@ public class GlossariesActions : BaseInvocable
             glossaryTitle);
 
         return new(tbxFileReference);
+    }
+    
+    [Action("Import glossary", Description = "Import glossary to Crowdin Enterprise project")]
+    public async Task ImportGlossaryAsync([ActionParameter]Apps.CrowdinEnterprise.Models.Request.Glossary.ImportGlossaryRequest request, [ActionParameter] GetGlossaryRequest glossaryRequest)
+    {
+        var client = new CrowdinEnterpriseClient(Creds);
+        
+        var stream = await _fileManagementClient.DownloadAsync(request.File);
+        
+        var glossaryImporter = new GlossaryImporter(stream);
+        var xDocument = await glossaryImporter.ConvertToCrowdinFormat();
+        
+        var memoryStream = new MemoryStream();
+        xDocument.Save(memoryStream);
+        memoryStream.Seek(0, SeekOrigin.Begin);
+        
+        var storageResponse = await client.Storage.AddStorage(memoryStream, request.File.Name);
+        
+        var importGlossaryRequest = new Crowdin.Api.Glossaries.ImportGlossaryRequest
+        {
+            StorageId = storageResponse.Id,
+            Scheme = new Dictionary<string, int>
+            {
+                {"term_en", 1},
+                {"description_en", 1},
+            },
+            FirstLineContainsHeader = false
+        };
+        
+        var response = await client.Glossaries.ImportGlossary(int.Parse(glossaryRequest.GlossaryId), importGlossaryRequest);
+        if (response.Status != OperationStatus.Created)
+        {
+            throw new Exception($"Glossary import failed, status: {response.Status}");
+        }
     }
 }
