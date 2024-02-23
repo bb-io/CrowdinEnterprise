@@ -9,7 +9,7 @@ public class GlossaryImporter(Stream fileStream)
     {
         var glossary = await fileStream.ConvertFromTbx();
 
-        fileStream.Position = 0; // Reset the stream position
+        fileStream.Position = 0;
         XDocument inputDoc = XDocument.Load(fileStream);
         string sourceDesc = glossary.SourceDescription;
 
@@ -38,7 +38,7 @@ public class GlossaryImporter(Stream fileStream)
                                         langSec.Terms.First().Term),
                                     new XElement("termNote",
                                         new XAttribute("type", "partOfSpeech"),
-                                        langSec.Terms.First().PartOfSpeech.ToString().ToLower()),
+                                        langSec.Terms.First().PartOfSpeech.ToString()?.ToLower()),
                                     new XElement("descrip",
                                         new XAttribute("type", "definition"),
                                         conceptEntry.Definition)

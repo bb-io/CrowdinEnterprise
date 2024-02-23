@@ -79,17 +79,12 @@ public class GlossariesActions : BaseInvocable
         var importGlossaryRequest = new Crowdin.Api.Glossaries.ImportGlossaryRequest
         {
             StorageId = storageResponse.Id,
-            Scheme = new Dictionary<string, int>
-            {
-                { "term_en", 1 },
-                { "description_en", 1 },
-            },
             FirstLineContainsHeader = false
         };
 
         var response =
             await client.Glossaries.ImportGlossary(glossaryResponse.Id, importGlossaryRequest);
-        if (response.Status != OperationStatus.Created)
+        if (response.Status != OperationStatus.Created || response.Status != OperationStatus.Finished || response.Status != OperationStatus.InProgress)
         {
             throw new Exception($"Glossary import failed, status: {response.Status}");
         }
