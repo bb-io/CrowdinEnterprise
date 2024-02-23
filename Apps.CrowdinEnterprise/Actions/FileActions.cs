@@ -190,16 +190,17 @@ public class FileActions : BaseInvocable
         var client = new CrowdinEnterpriseClient(Creds);
 
         var downloadLink = await client.SourceFiles.DownloadFile(intProjectId!.Value, intFileId!.Value);
-
-        var fileContent = await FileDownloader.DownloadFileBytes(downloadLink.Url, _fileManagementClient);
+        
+        var fileContent = await FileDownloader.DownloadFileBytes(downloadLink.Url);
         var fileDetails = await GetFile(project, file);
         
         fileContent.Name = fileDetails.Name;
         fileContent.ContentType = fileContent.ContentType == MediaTypeNames.Text.Plain
             ? MediaTypeNames.Application.Octet
             : fileContent.ContentType;
-
-        return new(fileContent);
+        
+        var fileReference = await _fileManagementClient.UploadAsync(fileContent.FileStream, fileContent.Name, fileContent.ContentType);
+        return new(fileReference);
     }
 
     [Action("Delete file", Description = "Delete specific file")]

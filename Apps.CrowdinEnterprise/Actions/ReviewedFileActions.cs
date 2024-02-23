@@ -10,6 +10,7 @@ using Blackbird.Applications.Sdk.Common.Authentication;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using Blackbird.Applications.Sdk.Utils.Extensions.Files;
+using Blackbird.Applications.Sdk.Utils.Models;
 using Blackbird.Applications.Sdk.Utils.Parsers;
 using Blackbird.Applications.Sdk.Utils.Utilities;
 
@@ -90,10 +91,11 @@ public class ReviewedFileActions : BaseInvocable
 
         var response = await client.SourceFiles.DownloadReviewedSourceFiles(intProjectId, intBuildId);
         
-        var file = await FileDownloader.DownloadFileBytes(response.Url, _fileManagementClient);
+        var file = await FileDownloader.DownloadFileBytes(response.Url);
         file.Name = $"{buildId}.zip";
         
-        return new(file);
+        var fileReference = await _fileManagementClient.UploadAsync(file.FileStream, file.Name, file.ContentType);
+        return new(fileReference);
     }
     
     [Action("Download reviewed source files", Description = "Download reviewed source files of specific build")]
@@ -105,9 +107,13 @@ public class ReviewedFileActions : BaseInvocable
 
         var zipFile = await _fileManagementClient.DownloadAsync(zip.File);
         var zipBytes = await zipFile.GetByteData();
-        var files = await zipBytes.GetFilesFromZip(_fileManagementClient);
+        var files = await zipFile.GetFilesFromZip();
 
-        var result = files.Where(x => x.File.Size > 0).ToArray();
+        var result = files.Where(x => x.FileStream.Length > 0).Select(x =>
+        {
+            var contentType = MimeTypes.GetMimeType(x.UploadName);
+            return new BlackbirdFile(x.FileStream, x.UploadName, contentType);
+        }).ToArray();
         return new(result);
     }
 }

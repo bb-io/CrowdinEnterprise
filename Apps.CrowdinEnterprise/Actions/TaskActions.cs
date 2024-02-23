@@ -1,5 +1,4 @@
 ﻿using Apps.CrowdinEnterprise.Api;
-using Apps.CrowdinEnterprise.Constants;
 using Apps.CrowdinEnterprise.Models.Entities;
 using Apps.CrowdinEnterprise.Models.Request.Project;
 using Apps.CrowdinEnterprise.Models.Request.Task;
@@ -119,10 +118,10 @@ public class TaskActions : BaseInvocable
         if (downloadLink is null)
             throw new("No string found for this task");
 
-        var fileContent = await FileDownloader.DownloadFileBytes(downloadLink.Url, _fileManagementClient);
+        var fileContent = await FileDownloader.DownloadFileBytes(downloadLink.Url);
         fileContent.Name = $"Task-{taskId}-string";
 
-
-        return new(fileContent);
+        var fileReference = await _fileManagementClient.UploadAsync(fileContent.FileStream, fileContent.Name, fileContent.ContentType);
+        return new(fileReference);
     }
 }
