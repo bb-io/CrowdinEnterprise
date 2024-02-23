@@ -52,38 +52,53 @@ public class GlossariesActions : BaseInvocable
 
         return new(tbxFileReference);
     }
-    
+
     [Action("Import glossary", Description = "Import glossary to Crowdin Enterprise project")]
-    public async Task ImportGlossaryAsync([ActionParameter]Apps.CrowdinEnterprise.Models.Request.Glossary.ImportGlossaryRequest request, [ActionParameter] GetGlossaryRequest glossaryRequest)
+    public async Task<ImportGlossaryResponse> ImportGlossaryAsync(
+        [ActionParameter] Apps.CrowdinEnterprise.Models.Request.Glossary.ImportGlossaryRequest request)
     {
         var client = new CrowdinEnterpriseClient(Creds);
-        
+
+        var glossaryResponse = await client.Glossaries.AddGlossary(new AddGlossaryRequest
+        {
+            Name = request.GlossaryName, 
+            LanguageId = request.LanguageCode,
+            GroupId = string.IsNullOrEmpty(request.GroupId) ? null : int.Parse(request.GroupId)
+        });
+
         var stream = await _fileManagementClient.DownloadAsync(request.File);
-        
+
         var glossaryImporter = new GlossaryImporter(stream);
         var xDocument = await glossaryImporter.ConvertToCrowdinFormat();
-        
+
         var memoryStream = new MemoryStream();
         xDocument.Save(memoryStream);
         memoryStream.Seek(0, SeekOrigin.Begin);
-        
+
         var storageResponse = await client.Storage.AddStorage(memoryStream, request.File.Name);
-        
         var importGlossaryRequest = new Crowdin.Api.Glossaries.ImportGlossaryRequest
         {
             StorageId = storageResponse.Id,
             Scheme = new Dictionary<string, int>
             {
-                {"term_en", 1},
-                {"description_en", 1},
+                { "term_en", 1 },
+                { "description_en", 1 },
             },
             FirstLineContainsHeader = false
         };
-        
-        var response = await client.Glossaries.ImportGlossary(int.Parse(glossaryRequest.GlossaryId), importGlossaryRequest);
+
+        var response =
+            await client.Glossaries.ImportGlossary(glossaryResponse.Id, importGlossaryRequest);
         if (response.Status != OperationStatus.Created)
         {
             throw new Exception($"Glossary import failed, status: {response.Status}");
         }
+        
+        return new ImportGlossaryResponse
+        {
+            Identifier = response.Identifier,
+            Status = response.Status.ToString(),
+            Progress = response.Progress.ToString()
+        };
     }
 }
