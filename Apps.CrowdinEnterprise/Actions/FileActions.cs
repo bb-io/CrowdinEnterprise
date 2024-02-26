@@ -9,6 +9,7 @@ using Apps.CrowdinEnterprise.Utils;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Authentication;
+using Blackbird.Applications.Sdk.Common.Files;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using Blackbird.Applications.Sdk.Utils.Parsers;
@@ -191,15 +192,13 @@ public class FileActions : BaseInvocable
 
         var downloadLink = await client.SourceFiles.DownloadFile(intProjectId!.Value, intFileId!.Value);
         
-        var fileContent = await FileDownloader.DownloadFileBytes(downloadLink.Url);
         var fileDetails = await GetFile(project, file);
         
-        fileContent.Name = fileDetails.Name;
-        fileContent.ContentType = fileContent.ContentType == MediaTypeNames.Text.Plain
-            ? MediaTypeNames.Application.Octet
-            : fileContent.ContentType;
-        
-        var fileReference = await _fileManagementClient.UploadAsync(fileContent.FileStream, fileContent.ContentType, fileContent.Name);
+        var contentType = MimeTypes.GetMimeType(fileDetails.Name);
+        var downloadedFile = new FileReference(new HttpRequestMessage(HttpMethod.Get, downloadLink.Url), fileDetails.Name, contentType);
+        var fileStream = await _fileManagementClient.DownloadAsync(downloadedFile);
+
+        var fileReference = await _fileManagementClient.UploadAsync(fileStream, contentType, fileDetails.Name);
         return new(fileReference);
     }
 
