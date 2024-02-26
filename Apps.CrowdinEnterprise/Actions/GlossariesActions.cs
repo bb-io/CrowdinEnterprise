@@ -60,16 +60,19 @@ public class GlossariesActions : BaseInvocable
         [ActionParameter] Apps.CrowdinEnterprise.Models.Request.Glossary.ImportGlossaryRequest request)
     {
         var client = new CrowdinEnterpriseClient(Creds);
-
+        
+        string glossaryName = request.GlossaryName ?? request.File.Name.Replace(".tbx", string.Empty);
+        string languageCode = request.LanguageCode ?? "en";
         var glossaryResponse = await client.Glossaries.AddGlossary(new AddGlossaryRequest
         {
-            Name = request.GlossaryName, 
-            LanguageId = request.LanguageCode,
+            Name = glossaryName, 
+            LanguageId = languageCode,
             GroupId = string.IsNullOrEmpty(request.GroupId) ? null : int.Parse(request.GroupId)
         });
 
         var stream = await _fileManagementClient.DownloadAsync(request.File);
 
+        stream.Position = 0;
         var glossaryImporter = new GlossaryImporter(stream);
         var xDocument = await glossaryImporter.ConvertToCrowdinFormat();
 

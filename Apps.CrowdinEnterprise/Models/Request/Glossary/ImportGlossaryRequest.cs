@@ -8,10 +8,10 @@ namespace Apps.CrowdinEnterprise.Models.Request.Glossary;
 public class ImportGlossaryRequest
 {
     [Display("Glossary name")]
-    public string GlossaryName { get; set; }
+    public string? GlossaryName { get; set; }
 
     [Display("Language"), DataSource(typeof(LanguagesDataHandler))]
-    public string LanguageCode { get; set; }
+    public string? LanguageCode { get; set; }
     
     [Display("Group"), DataSource(typeof(ProjectGroupDataHandler))]
     public string? GroupId { get; set; }
