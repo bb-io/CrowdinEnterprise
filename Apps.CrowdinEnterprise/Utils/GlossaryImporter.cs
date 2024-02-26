@@ -7,6 +7,7 @@ public class GlossaryImporter(Stream fileStream)
 {
     public async Task<XDocument> ConvertToCrowdinFormat()
     {
+        fileStream.Position = 0;
         var glossary = await fileStream.ConvertFromTbx();
         string sourceDesc = glossary.SourceDescription;
 
