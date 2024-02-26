@@ -72,8 +72,11 @@ public class GlossariesActions : BaseInvocable
         try
         {
             await using var file = await _fileManagementClient.DownloadAsync(request.File);
+            
+            var fileMemoryStream = new MemoryStream();
+            await file.CopyToAsync(fileMemoryStream);
 
-            var glossaryImporter = new GlossaryImporter(file);
+            var glossaryImporter = new GlossaryImporter(fileMemoryStream);
             var xDocument = await glossaryImporter.ConvertToCrowdinFormat();
 
             xDocument.Save(memoryStream);

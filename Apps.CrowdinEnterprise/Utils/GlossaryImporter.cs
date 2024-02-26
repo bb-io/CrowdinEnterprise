@@ -7,14 +7,7 @@ public class GlossaryImporter(Stream fileStream)
 {
     public async Task<XDocument> ConvertToCrowdinFormat()
     {
-        if (fileStream.Length == 0)
-        {
-            throw new InvalidOperationException("The file stream is empty.");
-        }
-        
-        fileStream.Position = 0;
         var glossary = await fileStream.ConvertFromTbx();
-
         string sourceDesc = glossary.SourceDescription;
 
         var outputDoc = new XDocument(
