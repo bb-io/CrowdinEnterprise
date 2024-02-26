@@ -157,7 +157,7 @@ public class ProjectActions : BaseInvocable
         var file = await FileDownloader.DownloadFileBytes(response.Link.Url);
         file.Name = $"{project.ProjectId}";
         
-        var fileReference = await _fileManagementClient.UploadAsync(file.FileStream, file.Name, file.ContentType);
+        var fileReference = await _fileManagementClient.UploadAsync(file.FileStream, file.ContentType, file.Name);
         return new(fileReference);
     }
 

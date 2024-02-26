@@ -118,7 +118,7 @@ public class TranslationMemoryActions : BaseInvocable
         var fileContent = await FileDownloader.DownloadFileBytes(response.Url);
         fileContent.Name = $"{input.TranslationMemoryId}";
         
-        var fileReference = await _fileManagementClient.UploadAsync(fileContent.FileStream, fileContent.Name, fileContent.ContentType);
+        var fileReference = await _fileManagementClient.UploadAsync(fileContent.FileStream, fileContent.ContentType, fileContent.Name);
         return new(fileReference);
     }
 

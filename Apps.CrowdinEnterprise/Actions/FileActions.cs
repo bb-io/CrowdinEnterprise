@@ -199,7 +199,7 @@ public class FileActions : BaseInvocable
             ? MediaTypeNames.Application.Octet
             : fileContent.ContentType;
         
-        var fileReference = await _fileManagementClient.UploadAsync(fileContent.FileStream, fileContent.Name, fileContent.ContentType);
+        var fileReference = await _fileManagementClient.UploadAsync(fileContent.FileStream, fileContent.ContentType, fileContent.Name);
         return new(fileReference);
     }
 

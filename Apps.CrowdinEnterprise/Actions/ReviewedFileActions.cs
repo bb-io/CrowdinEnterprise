@@ -94,7 +94,7 @@ public class ReviewedFileActions : BaseInvocable
         var file = await FileDownloader.DownloadFileBytes(response.Url);
         file.Name = $"{buildId}.zip";
         
-        var fileReference = await _fileManagementClient.UploadAsync(file.FileStream, file.Name, file.ContentType);
+        var fileReference = await _fileManagementClient.UploadAsync(file.FileStream, file.ContentType, file.Name);
         return new(fileReference);
     }
     
