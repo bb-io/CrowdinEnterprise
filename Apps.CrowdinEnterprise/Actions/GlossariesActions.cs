@@ -80,7 +80,7 @@ public class GlossariesActions : BaseInvocable
         xDocument.Save(memoryStream);
         memoryStream.Seek(0, SeekOrigin.Begin);
 
-        var storageResponse = await client.Storage.AddStorage(memoryStream, request.File.Name);
+        var storageResponse = await client.Storage.AddStorage(memoryStream, request.File?.Name ?? $"{glossaryName}.tbx");
         var importGlossaryRequest = new Crowdin.Api.Glossaries.ImportGlossaryRequest
         {
             StorageId = storageResponse.Id,
