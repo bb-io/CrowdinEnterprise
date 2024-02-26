@@ -195,10 +195,14 @@ public class FileActions : BaseInvocable
         var fileDetails = await GetFile(project, file);
         
         var contentType = MimeTypes.GetMimeType(fileDetails.Name);
-        var downloadedFile = new FileReference(new HttpRequestMessage(HttpMethod.Get, downloadLink.Url), fileDetails.Name, contentType);
-        var fileStream = await _fileManagementClient.DownloadAsync(downloadedFile);
-
-        var fileReference = await _fileManagementClient.UploadAsync(fileStream, contentType, fileDetails.Name);
+        var fileContent = await FileDownloader.DownloadFileBytes(downloadLink.Url);
+        
+        fileContent.Name = fileDetails.Name;
+        fileContent.ContentType = fileContent.ContentType == MediaTypeNames.Text.Plain
+            ? MediaTypeNames.Application.Octet
+            : fileContent.ContentType;
+        
+        var fileReference = await _fileManagementClient.UploadAsync(fileContent.FileStream, fileContent.ContentType, fileContent.Name);
         return new(fileReference);
     }
 

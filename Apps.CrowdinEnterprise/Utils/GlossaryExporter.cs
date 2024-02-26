@@ -39,7 +39,7 @@ public class GlossaryExporter(Stream inputFileStream)
             string definition = string.Empty;
             foreach (var langSet in langSets)
             {
-                definition = langSet.Descendants("descrip").FirstOrDefault(x => x.Attributes().First(x => x.Name == "type").Value != string.Empty).Value;
+                definition = langSet.Descendants("descrip").FirstOrDefault(x => x.Attributes().FirstOrDefault(x => x.Name == "type")?.Value != string.Empty)?.Value;
             }
             
             var languageSections = langSets.Select(langSet => ParseLanguageSection(langSet)).Where(section => section != null).ToList();
@@ -68,7 +68,7 @@ public class GlossaryExporter(Stream inputFileStream)
         return terms.Count > 0 ? new GlossaryLanguageSection(lang, terms) : null;
     }
 
-    private PartOfSpeech ParseFromTbxPartOfSpeech(string partOfSpeech)
+    private PartOfSpeech? ParseFromTbxPartOfSpeech(string partOfSpeech)
     {
         return partOfSpeech switch
         {
@@ -81,7 +81,7 @@ public class GlossaryExporter(Stream inputFileStream)
             "pronoun" => PartOfSpeech.Pronoun,
             "proper noun" => PartOfSpeech.ProperNoun,
             "verb" => PartOfSpeech.Verb,
-            _ => PartOfSpeech.Noun 
+            _ => null
         };
     }
 }
