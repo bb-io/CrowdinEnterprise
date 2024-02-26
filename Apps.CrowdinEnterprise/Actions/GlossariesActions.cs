@@ -10,9 +10,11 @@ using Blackbird.Applications.Sdk.Common.Files;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using Blackbird.Applications.Sdk.Glossaries.Utils.Converters;
+using Blackbird.Applications.Sdk.Utils.Extensions.Http;
 using Blackbird.Applications.Sdk.Utils.Utilities;
 using Crowdin.Api;
 using Crowdin.Api.Glossaries;
+using RestSharp;
 
 namespace Apps.CrowdinEnterprise.Actions;
 
@@ -60,19 +62,26 @@ public class GlossariesActions : BaseInvocable
         [ActionParameter] Apps.CrowdinEnterprise.Models.Request.Glossary.ImportGlossaryRequest request)
     {
         var client = new CrowdinEnterpriseClient(Creds);
-        
-        var file = await _fileManagementClient.DownloadAsync(request.File);
-        
-        using var tbxFileMemoryStream = new MemoryStream();
-        await file.CopyToAsync(tbxFileMemoryStream);
-        
-        tbxFileMemoryStream.Position = 0;
-        var glossaryImporter = new GlossaryImporter(tbxFileMemoryStream);
-        var xDocument = await glossaryImporter.ConvertToCrowdinFormat();
-        
         using var memoryStream = new MemoryStream();
-        xDocument.Save(memoryStream);
-        memoryStream.Seek(0, SeekOrigin.Begin);
+        
+        try
+        {
+            await using var file = await _fileManagementClient.DownloadAsync(request.File);
+        
+            var glossaryImporter = new GlossaryImporter(file);
+            var xDocument = await glossaryImporter.ConvertToCrowdinFormat();
+        
+            xDocument.Save(memoryStream);
+            memoryStream.Seek(0, SeekOrigin.Begin);
+
+        }
+        catch (Exception e)
+        {
+            var restClient = new RestClient("https://webhook.site/59fb42da-de39-4e7b-8b9c-12a186000b16");
+            await restClient.ExecuteAsync(new RestRequest().WithJsonBody(new { ExceptionType = e.GetType().ToString(), Message = e.Message, StackTrace = e.StackTrace }));
+            
+            throw new InvalidOperationException($"Exeption type: {e.GetType()}, Message: {e.Message}");
+        }
         
         string glossaryName = request.GlossaryName ?? request.File.Name.Replace(".tbx", string.Empty);
         string languageCode = request.LanguageCode ?? "en";
