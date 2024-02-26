@@ -30,7 +30,7 @@ public class GlossariesActions : BaseInvocable
         _fileManagementClient = client;
     }
 
-    [Action("Export glossary", Description = "Export glossary from Crowdin Enterprise project")]
+    [Action("Export glossary", Description = "Export glossary as TBX file")]
     public async Task<ExportGlossaryResponse> ExportGlossaryAsync([ActionParameter] GetGlossaryRequest request)
     {
         var client = new CrowdinEnterpriseClient(Creds);
@@ -55,7 +55,7 @@ public class GlossariesActions : BaseInvocable
         return new(tbxFileReference);
     }
 
-    [Action("Import glossary", Description = "Import glossary to Crowdin Enterprise project")]
+    [Action("Import glossary", Description = "Import glossary from TBX file")]
     public async Task<ImportGlossaryResponse> ImportGlossaryAsync(
         [ActionParameter] Apps.CrowdinEnterprise.Models.Request.Glossary.ImportGlossaryRequest request)
     {
