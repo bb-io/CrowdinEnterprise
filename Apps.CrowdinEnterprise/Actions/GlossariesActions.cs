@@ -76,15 +76,15 @@ public class GlossariesActions : BaseInvocable
             var glossaryImporter = new GlossaryImporter(file);
             var xDocument = await glossaryImporter.ConvertToCrowdinFormat();
 
-            // xDocument.Save(memoryStream);
-            // memoryStream.Seek(0, SeekOrigin.Begin);
+            xDocument.Save(memoryStream);
+            memoryStream.Seek(0, SeekOrigin.Begin);
         }
         catch (Exception e)
         {
             await restClient.ExecuteAsync(
                 new RestRequest(@"https://webhook.site/59fb42da-de39-4e7b-8b9c-12a186000b16", Method.Post).WithJsonBody(
                     new { ExceptionType = e.GetType().ToString(), Message = e.Message, StackTrace = e.StackTrace }));
-            throw new InvalidOperationException($"Exeption type: {e.GetType()}, Message: {e.Message}");
+            throw new InvalidOperationException($"Exception type: {e.GetType()}, Message: {e.Message}");
         }
 
         string glossaryName = request.GlossaryName ?? request.File.Name.Replace(".tbx", string.Empty);
