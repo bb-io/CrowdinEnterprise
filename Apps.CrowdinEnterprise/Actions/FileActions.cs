@@ -194,7 +194,6 @@ public class FileActions : BaseInvocable
         
         var fileDetails = await GetFile(project, file);
         
-        var contentType = MimeTypes.GetMimeType(fileDetails.Name);
         var fileContent = await FileDownloader.DownloadFileBytes(downloadLink.Url);
         
         fileContent.Name = fileDetails.Name;
