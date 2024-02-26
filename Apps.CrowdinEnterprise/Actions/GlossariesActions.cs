@@ -29,17 +29,6 @@ public class GlossariesActions : BaseInvocable
     {
         _fileManagementClient = client;
     }
-    
-    [Action("Get glossary", Description = "Temporary action to get glossary")]
-    public async Task<Glossary> GetGlossaryAsync([ActionParameter] GetGlossaryRequest request)
-    {
-        var client = new CrowdinEnterpriseClient(Creds);
-
-        var glossaryId = int.Parse(request.GlossaryId);
-        var glossary = await client.Glossaries.GetGlossary(glossaryId);
-
-        return glossary;
-    }
 
     [Action("Export glossary", Description = "Export glossary from Crowdin Enterprise project")]
     public async Task<ExportGlossaryResponse> ExportGlossaryAsync([ActionParameter] GetGlossaryRequest request)
@@ -97,7 +86,7 @@ public class GlossariesActions : BaseInvocable
 
         var response =
             await client.Glossaries.ImportGlossary(glossaryResponse.Id, importGlossaryRequest);
-        if (response.Status != OperationStatus.Created || response.Status != OperationStatus.Finished || response.Status != OperationStatus.InProgress)
+        if (response.Status != OperationStatus.Created && response.Status != OperationStatus.Finished && response.Status != OperationStatus.InProgress)
         {
             throw new Exception($"Glossary import failed, status: {response.Status}");
         }

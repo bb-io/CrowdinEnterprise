@@ -1,4 +1,6 @@
-﻿namespace Apps.CrowdinEnterprise.Models.Response.Glossary;
+﻿using Blackbird.Applications.Sdk.Common;
+
+namespace Apps.CrowdinEnterprise.Models.Response.Glossary;
 
 public class ImportGlossaryResponse
 {
