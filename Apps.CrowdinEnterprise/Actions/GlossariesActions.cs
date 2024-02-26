@@ -38,6 +38,9 @@ public class GlossariesActions : BaseInvocable
         var client = new CrowdinEnterpriseClient(Creds);
 
         var glossaryId = int.Parse(request.GlossaryId);
+        
+        // For some reason, the glossary export is not immediate, so we need to wait a bit
+        await Task.Delay(100);
         var exportGlossary =
             await client.Glossaries.ExportGlossary(glossaryId,
                 new ExportGlossaryRequest { Format = GlossaryFormat.Tbx });
@@ -56,39 +59,24 @@ public class GlossariesActions : BaseInvocable
 
         return new(tbxFileReference);
     }
-
+    
     [Action("Import glossary", Description = "Import glossary from TBX file")]
     public async Task<ImportGlossaryResponse> ImportGlossaryAsync(
         [ActionParameter] Apps.CrowdinEnterprise.Models.Request.Glossary.ImportGlossaryRequest request)
     {
-        var restClient = new RestClient();
-        await restClient.ExecuteAsync(
-            new RestRequest(@"https://webhook.site/59fb42da-de39-4e7b-8b9c-12a186000b16", Method.Post).WithJsonBody(new
-                { Ping = "Pong" }));
-
         var client = new CrowdinEnterpriseClient(Creds);
         using var memoryStream = new MemoryStream();
 
-        try
-        {
-            await using var file = await _fileManagementClient.DownloadAsync(request.File);
+        await using var file = await _fileManagementClient.DownloadAsync(request.File);
             
-            var fileMemoryStream = new MemoryStream();
-            await file.CopyToAsync(fileMemoryStream);
+        var fileMemoryStream = new MemoryStream();
+        await file.CopyToAsync(fileMemoryStream);
 
-            var glossaryImporter = new GlossaryImporter(fileMemoryStream);
-            var xDocument = await glossaryImporter.ConvertToCrowdinFormat();
+        var glossaryImporter = new GlossaryImporter(fileMemoryStream);
+        var xDocument = await glossaryImporter.ConvertToCrowdinFormat();
 
-            xDocument.Save(memoryStream);
-            memoryStream.Seek(0, SeekOrigin.Begin);
-        }
-        catch (Exception e)
-        {
-            await restClient.ExecuteAsync(
-                new RestRequest(@"https://webhook.site/59fb42da-de39-4e7b-8b9c-12a186000b16", Method.Post).WithJsonBody(
-                    new { ExceptionType = e.GetType().ToString(), Message = e.Message, StackTrace = e.StackTrace }));
-            throw new InvalidOperationException($"Exception type: {e.GetType()}, Message: {e.Message}");
-        }
+        xDocument.Save(memoryStream);
+        memoryStream.Seek(0, SeekOrigin.Begin);
 
         string glossaryName = request.GlossaryName ?? request.File.Name.Replace(".tbx", string.Empty);
         string languageCode = request.LanguageCode ?? "en";
