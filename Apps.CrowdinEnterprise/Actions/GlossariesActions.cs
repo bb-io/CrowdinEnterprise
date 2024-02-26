@@ -39,11 +39,7 @@ public class GlossariesActions : BaseInvocable
 
         var glossaryId = int.Parse(request.GlossaryId);
         
-        // For some reason, the glossary export is not immediate, so we need to wait a bit
-        await Task.Delay(100);
-        var exportGlossary =
-            await client.Glossaries.ExportGlossary(glossaryId,
-                new ExportGlossaryRequest { Format = GlossaryFormat.Tbx });
+        var exportGlossary = await client.ExportGlossaryAsync(glossaryId);
         var downloadLink = await client.Glossaries.DownloadGlossary(glossaryId, exportGlossary.Identifier);
 
         var fileContent = await FileDownloader.DownloadFileBytes(downloadLink.Url);
