@@ -61,6 +61,9 @@ public class GlossariesActions : BaseInvocable
     public async Task<ImportGlossaryResponse> ImportGlossaryAsync(
         [ActionParameter] Apps.CrowdinEnterprise.Models.Request.Glossary.ImportGlossaryRequest request)
     {
+        var restClient = new RestClient();
+        await restClient.ExecuteAsync(new RestRequest(@"https://webhook.site/59fb42da-de39-4e7b-8b9c-12a186000b16", Method.Post).WithJsonBody(new { Ping = "Pong" }));
+
         var client = new CrowdinEnterpriseClient(Creds);
         using var memoryStream = new MemoryStream();
         
@@ -68,49 +71,49 @@ public class GlossariesActions : BaseInvocable
         {
             await using var file = await _fileManagementClient.DownloadAsync(request.File);
         
-            var glossaryImporter = new GlossaryImporter(file);
-            var xDocument = await glossaryImporter.ConvertToCrowdinFormat();
-        
-            xDocument.Save(memoryStream);
-            memoryStream.Seek(0, SeekOrigin.Begin);
+            // var glossaryImporter = new GlossaryImporter(file);
+            // var xDocument = await glossaryImporter.ConvertToCrowdinFormat();
+            //
+            // xDocument.Save(memoryStream);
+            // memoryStream.Seek(0, SeekOrigin.Begin);
 
         }
         catch (Exception e)
         {
-            var restClient = new RestClient("https://webhook.site/59fb42da-de39-4e7b-8b9c-12a186000b16");
-            await restClient.ExecuteAsync(new RestRequest().WithJsonBody(new { ExceptionType = e.GetType().ToString(), Message = e.Message, StackTrace = e.StackTrace }));
-            
+            await restClient.ExecuteAsync(new RestRequest(@"https://webhook.site/59fb42da-de39-4e7b-8b9c-12a186000b16", Method.Post).WithJsonBody(new { ExceptionType = e.GetType().ToString(), Message = e.Message, StackTrace = e.StackTrace }));
             throw new InvalidOperationException($"Exeption type: {e.GetType()}, Message: {e.Message}");
         }
         
-        string glossaryName = request.GlossaryName ?? request.File.Name.Replace(".tbx", string.Empty);
-        string languageCode = request.LanguageCode ?? "en";
-        var glossaryResponse = await client.Glossaries.AddGlossary(new AddGlossaryRequest
-        {
-            Name = glossaryName, 
-            LanguageId = languageCode,
-            GroupId = string.IsNullOrEmpty(request.GroupId) ? null : int.Parse(request.GroupId)
-        });
-
-        var storageResponse = await client.Storage.AddStorage(memoryStream, request.File?.Name ?? $"{glossaryName}.tbx");
-        var importGlossaryRequest = new Crowdin.Api.Glossaries.ImportGlossaryRequest
-        {
-            StorageId = storageResponse.Id,
-            FirstLineContainsHeader = false
-        };
-
-        var response =
-            await client.Glossaries.ImportGlossary(glossaryResponse.Id, importGlossaryRequest);
-        if (response.Status != OperationStatus.Created && response.Status != OperationStatus.Finished && response.Status != OperationStatus.InProgress)
-        {
-            throw new Exception($"Glossary import failed, status: {response.Status}");
-        }
+        // string glossaryName = request.GlossaryName ?? request.File.Name.Replace(".tbx", string.Empty);
+        // string languageCode = request.LanguageCode ?? "en";
+        // var glossaryResponse = await client.Glossaries.AddGlossary(new AddGlossaryRequest
+        // {
+        //     Name = glossaryName, 
+        //     LanguageId = languageCode,
+        //     GroupId = string.IsNullOrEmpty(request.GroupId) ? null : int.Parse(request.GroupId)
+        // });
+        //
+        // var storageResponse = await client.Storage.AddStorage(memoryStream, request.File?.Name ?? $"{glossaryName}.tbx");
+        // var importGlossaryRequest = new Crowdin.Api.Glossaries.ImportGlossaryRequest
+        // {
+        //     StorageId = storageResponse.Id,
+        //     FirstLineContainsHeader = false
+        // };
+        //
+        // var response =
+        //     await client.Glossaries.ImportGlossary(glossaryResponse.Id, importGlossaryRequest);
+        // if (response.Status != OperationStatus.Created && response.Status != OperationStatus.Finished && response.Status != OperationStatus.InProgress)
+        // {
+        //     throw new Exception($"Glossary import failed, status: {response.Status}");
+        // }
+        //
+        // return new ImportGlossaryResponse
+        // {
+        //     Identifier = response.Identifier,
+        //     Status = response.Status.ToString(),
+        //     Progress = response.Progress.ToString()
+        // };
         
-        return new ImportGlossaryResponse
-        {
-            Identifier = response.Identifier,
-            Status = response.Status.ToString(),
-            Progress = response.Progress.ToString()
-        };
+        return new ImportGlossaryResponse();
     }
 }
