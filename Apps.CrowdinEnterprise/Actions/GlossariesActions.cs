@@ -63,7 +63,6 @@ public class GlossariesActions : BaseInvocable
         
         var file = await _fileManagementClient.DownloadAsync(request.File);
         
-        file.Position = 0;
         using var tbxFileMemoryStream = new MemoryStream();
         await file.CopyToAsync(tbxFileMemoryStream);
         
