@@ -61,6 +61,18 @@ public class GlossariesActions : BaseInvocable
     {
         var client = new CrowdinEnterpriseClient(Creds);
         
+        var file = await _fileManagementClient.DownloadAsync(request.File);
+        
+        using var tbxFileMemoryStream = new MemoryStream();
+        await file.CopyToAsync(tbxFileMemoryStream);
+        
+        var glossaryImporter = new GlossaryImporter(tbxFileMemoryStream);
+        var xDocument = await glossaryImporter.ConvertToCrowdinFormat();
+        
+        using var memoryStream = new MemoryStream();
+        xDocument.Save(memoryStream);
+        memoryStream.Seek(0, SeekOrigin.Begin);
+        
         string glossaryName = request.GlossaryName ?? request.File.Name.Replace(".tbx", string.Empty);
         string languageCode = request.LanguageCode ?? "en";
         var glossaryResponse = await client.Glossaries.AddGlossary(new AddGlossaryRequest
@@ -69,17 +81,6 @@ public class GlossariesActions : BaseInvocable
             LanguageId = languageCode,
             GroupId = string.IsNullOrEmpty(request.GroupId) ? null : int.Parse(request.GroupId)
         });
-
-        var file = await _fileManagementClient.DownloadAsync(request.File);
-        using var tbxFileMemoryStream = new MemoryStream();
-        await file.CopyToAsync(tbxFileMemoryStream);
-        
-        var glossaryImporter = new GlossaryImporter(tbxFileMemoryStream);
-        var xDocument = await glossaryImporter.ConvertToCrowdinFormat();
-
-        using var memoryStream = new MemoryStream();
-        xDocument.Save(memoryStream);
-        memoryStream.Seek(0, SeekOrigin.Begin);
 
         var storageResponse = await client.Storage.AddStorage(memoryStream, request.File?.Name ?? $"{glossaryName}.tbx");
         var importGlossaryRequest = new Crowdin.Api.Glossaries.ImportGlossaryRequest
