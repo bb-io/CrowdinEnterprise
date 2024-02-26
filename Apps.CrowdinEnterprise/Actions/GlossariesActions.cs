@@ -70,13 +70,14 @@ public class GlossariesActions : BaseInvocable
             GroupId = string.IsNullOrEmpty(request.GroupId) ? null : int.Parse(request.GroupId)
         });
 
-        var stream = await _fileManagementClient.DownloadAsync(request.File);
-
-        stream.Position = 0;
-        var glossaryImporter = new GlossaryImporter(stream);
+        var file = await _fileManagementClient.DownloadAsync(request.File);
+        using var tbxFileMemoryStream = new MemoryStream();
+        await file.CopyToAsync(tbxFileMemoryStream);
+        
+        var glossaryImporter = new GlossaryImporter(tbxFileMemoryStream);
         var xDocument = await glossaryImporter.ConvertToCrowdinFormat();
 
-        var memoryStream = new MemoryStream();
+        using var memoryStream = new MemoryStream();
         xDocument.Save(memoryStream);
         memoryStream.Seek(0, SeekOrigin.Begin);
 
