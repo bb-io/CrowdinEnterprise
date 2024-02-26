@@ -1,4 +1,5 @@
 ﻿using Apps.CrowdinEnterprise.Api;
+using Apps.CrowdinEnterprise.DataSourceHandlers;
 using Apps.CrowdinEnterprise.Models.Request.Glossary;
 using Apps.CrowdinEnterprise.Models.Response.Glossary;
 using Apps.CrowdinEnterprise.Utils;
@@ -27,6 +28,17 @@ public class GlossariesActions : BaseInvocable
         invocationContext)
     {
         _fileManagementClient = client;
+    }
+    
+    [Action("Get glossary", Description = "Temporary action to get glossary")]
+    public async Task<Glossary> GetGlossaryAsync([ActionParameter] GetGlossaryRequest request)
+    {
+        var client = new CrowdinEnterpriseClient(Creds);
+
+        var glossaryId = int.Parse(request.GlossaryId);
+        var glossary = await client.Glossaries.GetGlossary(glossaryId);
+
+        return glossary;
     }
 
     [Action("Export glossary", Description = "Export glossary from Crowdin Enterprise project")]
