@@ -9,6 +9,7 @@ using Apps.CrowdinEnterprise.Utils;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Authentication;
+using Blackbird.Applications.Sdk.Common.Files;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using Blackbird.Applications.Sdk.Utils.Parsers;
@@ -190,16 +191,18 @@ public class FileActions : BaseInvocable
         var client = new CrowdinEnterpriseClient(Creds);
 
         var downloadLink = await client.SourceFiles.DownloadFile(intProjectId!.Value, intFileId!.Value);
-
-        var fileContent = await FileDownloader.DownloadFileBytes(downloadLink.Url, _fileManagementClient);
+        
         var fileDetails = await GetFile(project, file);
+        
+        var fileContent = await FileDownloader.DownloadFileBytes(downloadLink.Url);
         
         fileContent.Name = fileDetails.Name;
         fileContent.ContentType = fileContent.ContentType == MediaTypeNames.Text.Plain
             ? MediaTypeNames.Application.Octet
             : fileContent.ContentType;
-
-        return new(fileContent);
+        
+        var fileReference = await _fileManagementClient.UploadAsync(fileContent.FileStream, fileContent.ContentType, fileContent.Name);
+        return new(fileReference);
     }
 
     [Action("Delete file", Description = "Delete specific file")]

@@ -17,6 +17,8 @@ public class CrowdinEnterpriseApplication : BaseInvocable, IApplication
         set { }
     }
 
+    public IPublicApplicationMetadata? PublicApplicationMetadata { get; }
+
     private readonly Dictionary<Type, object> _typesInstances;
 
     public CrowdinEnterpriseApplication(InvocationContext invocationContext) : base(invocationContext)

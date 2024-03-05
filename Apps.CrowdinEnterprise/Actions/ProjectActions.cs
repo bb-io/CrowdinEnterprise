@@ -1,5 +1,4 @@
 ﻿using Apps.CrowdinEnterprise.Api;
-using Apps.CrowdinEnterprise.Constants;
 using Apps.CrowdinEnterprise.Models.Entities;
 using Apps.CrowdinEnterprise.Models.Request.Project;
 using Apps.CrowdinEnterprise.Models.Response.File;
@@ -11,6 +10,7 @@ using Blackbird.Applications.Sdk.Common.Authentication;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using Blackbird.Applications.Sdk.Utils.Extensions.Files;
+using Blackbird.Applications.Sdk.Utils.Models;
 using Blackbird.Applications.Sdk.Utils.Parsers;
 using Blackbird.Applications.Sdk.Utils.Utilities;
 using Crowdin.Api.ProjectsGroups;
@@ -154,10 +154,11 @@ public class ProjectActions : BaseInvocable
         if (response.Link is null)
             throw new("Project build is in progress, you can't download the data now");
 
-        var file = await FileDownloader.DownloadFileBytes(response.Link.Url, _fileManagementClient);
+        var file = await FileDownloader.DownloadFileBytes(response.Link.Url);
         file.Name = $"{project.ProjectId}";
-
-        return new(file);
+        
+        var fileReference = await _fileManagementClient.UploadAsync(file.FileStream, file.ContentType, file.Name);
+        return new(fileReference);
     }
 
     [Action("Download translations", Description = "Download project translations")]
@@ -169,14 +170,19 @@ public class ProjectActions : BaseInvocable
 
         var zipFile = await _fileManagementClient.DownloadAsync(filesArchive.File);
         var zipBytes = await zipFile.GetByteData();
-        var files = await zipBytes.GetFilesFromZip(_fileManagementClient);
+        var files = await zipFile.GetFilesFromZip();
 
-        var result = files.Where(x => x.File.Size > 0).ToArray();
+        var result = files.Where(x => x.FileStream.Length > 0).ToArray();
 
         // Cleaning files path from the root folder of the archive
         result.ToList().ForEach(x =>
             x.Path = string.Join('/', x.Path.Split("/").Skip(1)));
 
-        return new(result);
+        var blackbirdFiles = result.Select(x =>
+        {
+            var contentType = MimeTypes.GetMimeType(x.UploadName);
+            return new BlackbirdFile(x.FileStream, x.UploadName, contentType);
+        }).ToArray();
+        return new(blackbirdFiles);
     }
 }

@@ -1,5 +1,4 @@
 ﻿using Apps.CrowdinEnterprise.Api;
-using Apps.CrowdinEnterprise.Constants;
 using Apps.CrowdinEnterprise.Models.Entities;
 using Apps.CrowdinEnterprise.Models.Request.TranslationMemory;
 using Apps.CrowdinEnterprise.Models.Response.File;
@@ -116,10 +115,11 @@ public class TranslationMemoryActions : BaseInvocable
 
         var response = await client.TranslationMemory.DownloadTm(intTmId!.Value, input.ExportId);
 
-        var fileContent = await FileDownloader.DownloadFileBytes(response.Url, _fileManagementClient);
+        var fileContent = await FileDownloader.DownloadFileBytes(response.Url);
         fileContent.Name = $"{input.TranslationMemoryId}";
         
-        return new(fileContent);
+        var fileReference = await _fileManagementClient.UploadAsync(fileContent.FileStream, fileContent.ContentType, fileContent.Name);
+        return new(fileReference);
     }
 
     [Action("Add translation memory segment", Description = "Add new segment to the translation memory")]
