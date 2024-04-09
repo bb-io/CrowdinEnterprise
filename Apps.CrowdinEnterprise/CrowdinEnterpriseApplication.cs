@@ -2,6 +2,7 @@
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Authentication.OAuth2;
 using Blackbird.Applications.Sdk.Common.Invocation;
+using Blackbird.Applications.Sdk.Common.Metadata;
 
 namespace Apps.CrowdinEnterprise;
 
@@ -9,15 +10,19 @@ namespace Apps.CrowdinEnterprise;
 // user management
 // team actions
     
-public class CrowdinEnterpriseApplication : BaseInvocable, IApplication
+public class CrowdinEnterpriseApplication : BaseInvocable, IApplication, ICategoryProvider
 {
+    public IEnumerable<ApplicationCategory> Categories
+    {
+        get => [ApplicationCategory.CatAndTms];
+        set { }
+    }
+    
     public string Name
     {
         get => "Crowdin Enterprise";
         set { }
     }
-
-    public IPublicApplicationMetadata? PublicApplicationMetadata { get; }
 
     private readonly Dictionary<Type, object> _typesInstances;
 
