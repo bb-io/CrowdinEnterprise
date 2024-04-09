@@ -8,7 +8,9 @@ using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Authentication;
 using Blackbird.Applications.Sdk.Common.Invocation;
+using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using Blackbird.Applications.Sdk.Utils.Extensions.Files;
+using Blackbird.Applications.Sdk.Utils.Models;
 using Blackbird.Applications.Sdk.Utils.Parsers;
 using Blackbird.Applications.Sdk.Utils.Utilities;
 
@@ -20,8 +22,12 @@ public class ReviewedFileActions : BaseInvocable
     private AuthenticationCredentialsProvider[] Creds 
         => InvocationContext.AuthenticationCredentialsProviders.ToArray();
 
-    public ReviewedFileActions(InvocationContext invocationContext) : base(invocationContext)
+    private readonly IFileManagementClient _fileManagementClient;
+
+    public ReviewedFileActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient) : base(
+        invocationContext)
     {
+        _fileManagementClient = fileManagementClient;
     }
     
     [Action("List reviewed source files builds", Description = "List all reviewed source files builds of specific project")]
@@ -88,7 +94,8 @@ public class ReviewedFileActions : BaseInvocable
         var file = await FileDownloader.DownloadFileBytes(response.Url);
         file.Name = $"{buildId}.zip";
         
-        return new(file);
+        var fileReference = await _fileManagementClient.UploadAsync(file.FileStream, file.ContentType, file.Name);
+        return new(fileReference);
     }
     
     [Action("Download reviewed source files", Description = "Download reviewed source files of specific build")]
@@ -97,9 +104,16 @@ public class ReviewedFileActions : BaseInvocable
         string buildId)
     {
         var zip = await DownloadReviewedSourceFilesAsZip(project, buildId);
-        var files = await zip.File.Bytes.GetFilesFromZip();
 
-        var result = files.Where(x => x.File.Bytes.Any()).ToArray();
+        var zipFile = await _fileManagementClient.DownloadAsync(zip.File);
+        var zipBytes = await zipFile.GetByteData();
+        var files = await zipFile.GetFilesFromZip();
+
+        var result = files.Where(x => x.FileStream.Length > 0).Select(x =>
+        {
+            var contentType = MimeTypes.GetMimeType(x.UploadName);
+            return new BlackbirdFile(x.FileStream, x.UploadName, contentType);
+        }).ToArray();
         return new(result);
     }
 }

@@ -1,5 +1,4 @@
 ﻿using Apps.CrowdinEnterprise.Api;
-using Apps.CrowdinEnterprise.Constants;
 using Apps.CrowdinEnterprise.Models.Entities;
 using Apps.CrowdinEnterprise.Models.Request.Project;
 using Apps.CrowdinEnterprise.Models.Response.File;
@@ -9,7 +8,9 @@ using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Authentication;
 using Blackbird.Applications.Sdk.Common.Invocation;
+using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using Blackbird.Applications.Sdk.Utils.Extensions.Files;
+using Blackbird.Applications.Sdk.Utils.Models;
 using Blackbird.Applications.Sdk.Utils.Parsers;
 using Blackbird.Applications.Sdk.Utils.Utilities;
 using Crowdin.Api.ProjectsGroups;
@@ -23,8 +24,12 @@ public class ProjectActions : BaseInvocable
     private AuthenticationCredentialsProvider[] Creds =>
         InvocationContext.AuthenticationCredentialsProviders.ToArray();
 
-    public ProjectActions(InvocationContext invocationContext) : base(invocationContext)
+    private readonly IFileManagementClient _fileManagementClient;
+
+    public ProjectActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient) : base(
+        invocationContext)
     {
+        _fileManagementClient = fileManagementClient;
     }
 
     [Action("List projects", Description = "List all projects")]
@@ -70,9 +75,8 @@ public class ProjectActions : BaseInvocable
             VendorId = IntParser.Parse(input.VendorId, nameof(input.VendorId)),
             MtEngineId = IntParser.Parse(input.MtEngineId, nameof(input.MtEngineId)),
             TranslateDuplicates = EnumParser.Parse<DupTranslateAction>(input.TranslateDuplicates,
-                nameof(input.TranslateDuplicates), EnumValues.TranslateDuplicates),
-            TagsDetection = EnumParser.Parse<TagsDetectionAction>(input.TagsDetection, nameof(input.TagsDetection),
-                EnumValues.TagsDetection),
+                nameof(input.TranslateDuplicates)),
+            TagsDetection = EnumParser.Parse<TagsDetectionAction>(input.TagsDetection, nameof(input.TagsDetection)),
             DelayedWorkflowStart = input.DelayedWorkflowStart,
             ExportWithMinApprovalsCount = input.ExportWithMinApprovalsCount,
             NormalizePlaceholder = input.NormalizePlaceholder,
@@ -152,8 +156,9 @@ public class ProjectActions : BaseInvocable
 
         var file = await FileDownloader.DownloadFileBytes(response.Link.Url);
         file.Name = $"{project.ProjectId}";
-
-        return new(file);
+        
+        var fileReference = await _fileManagementClient.UploadAsync(file.FileStream, file.ContentType, file.Name);
+        return new(fileReference);
     }
 
     [Action("Download translations", Description = "Download project translations")]
@@ -162,14 +167,22 @@ public class ProjectActions : BaseInvocable
         [ActionParameter] BuildRequest build)
     {
         var filesArchive = await DownloadTranslationsAsZip(project, build);
-        var files = await filesArchive.File.Bytes.GetFilesFromZip();
-     
-        var result = files.Where(x => x.File.Bytes.Any()).ToArray();
-        
+
+        var zipFile = await _fileManagementClient.DownloadAsync(filesArchive.File);
+        var zipBytes = await zipFile.GetByteData();
+        var files = await zipFile.GetFilesFromZip();
+
+        var result = files.Where(x => x.FileStream.Length > 0).ToArray();
+
         // Cleaning files path from the root folder of the archive
         result.ToList().ForEach(x =>
             x.Path = string.Join('/', x.Path.Split("/").Skip(1)));
-        
-        return new(result);
+
+        var blackbirdFiles = result.Select(x =>
+        {
+            var contentType = MimeTypes.GetMimeType(x.UploadName);
+            return new BlackbirdFile(x.FileStream, x.UploadName, contentType);
+        }).ToArray();
+        return new(blackbirdFiles);
     }
 }

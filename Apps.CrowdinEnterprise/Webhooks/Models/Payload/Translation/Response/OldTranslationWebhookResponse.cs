@@ -26,7 +26,7 @@ public class OldTranslationWebhookResponse
     public OldTranslationWebhookResponse(OldTranslationPayload payload)
     {
         Id = payload.Id;
-        Text = payload.Text;
+        Text = payload.Text ?? string.Empty;
         PluralCategoryName = payload.PluralCategoryName;
         Rating = payload.Rating;
         Provider = payload.Provider;

@@ -7,6 +7,7 @@ using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Authentication;
 using Blackbird.Applications.Sdk.Common.Invocation;
+using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using Blackbird.Applications.Sdk.Utils.Parsers;
 
 namespace Apps.CrowdinEnterprise.Actions;
@@ -17,8 +18,12 @@ public class StorageActions : BaseInvocable
     private AuthenticationCredentialsProvider[] Creds =>
         InvocationContext.AuthenticationCredentialsProviders.ToArray();
 
-    public StorageActions(InvocationContext invocationContext) : base(invocationContext)
+    private readonly IFileManagementClient _fileManagementClient;
+
+    public StorageActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient) : base(
+        invocationContext)
     {
+        _fileManagementClient = fileManagementClient;
     }
     
     [Action("List storages", Description = "List all storages")]
@@ -48,8 +53,9 @@ public class StorageActions : BaseInvocable
     {
         var client = new CrowdinEnterpriseClient(Creds);
 
+        var file = await _fileManagementClient.DownloadAsync(input.File);
         var response = await client.Storage
-            .AddStorage(new MemoryStream(input.File.Bytes), input.FileName ?? input.File.Name);
+            .AddStorage(file, input.FileName ?? input.File.Name);
         
         return new(response);
     }

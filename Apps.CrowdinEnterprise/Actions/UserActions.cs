@@ -28,9 +28,8 @@ public class UserActions : BaseInvocable
     {
         var client = new CrowdinEnterpriseClient(Creds);
 
-        var userStatus = EnumParser.Parse<UserStatus>(input.Status, nameof(input.Status), EnumValues.UserStatus);
-        var twoFactor = EnumParser.Parse<UserTwoFactorStatus>(input.TwoFactor, nameof(input.TwoFactor),
-            EnumValues.UserTwoFactorStatus);
+        var userStatus = EnumParser.Parse<UserStatus>(input.Status, nameof(input.Status));
+        var twoFactor = EnumParser.Parse<UserTwoFactorStatus>(input.TwoFactor, nameof(input.TwoFactor));
 
         var response = await Paginator.Paginate((lim, offset) =>
             client.Users.ListUsers(userStatus, input.Search, twoFactor, lim, offset));

@@ -1,5 +1,4 @@
 ﻿using Apps.CrowdinEnterprise.Api;
-using Apps.CrowdinEnterprise.Constants;
 using Apps.CrowdinEnterprise.Models.Entities;
 using Apps.CrowdinEnterprise.Models.Request.TranslationMemory;
 using Apps.CrowdinEnterprise.Models.Response.File;
@@ -9,6 +8,7 @@ using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Authentication;
 using Blackbird.Applications.Sdk.Common.Invocation;
+using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using Blackbird.Applications.Sdk.Utils.Parsers;
 using Blackbird.Applications.Sdk.Utils.Utilities;
 using Crowdin.Api.TranslationMemory;
@@ -21,8 +21,12 @@ public class TranslationMemoryActions : BaseInvocable
     private AuthenticationCredentialsProvider[] Creds =>
         InvocationContext.AuthenticationCredentialsProviders.ToArray();
 
-    public TranslationMemoryActions(InvocationContext invocationContext) : base(invocationContext)
+    private readonly IFileManagementClient _fileManagementClient;
+
+    public TranslationMemoryActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient) : base(
+        invocationContext)
     {
+        _fileManagementClient = fileManagementClient;
     }
     
     [Action("List translation memories", Description = "List all translation memories")]
@@ -87,7 +91,7 @@ public class TranslationMemoryActions : BaseInvocable
         var intTmId = IntParser.Parse(tm.TranslationMemoryId, nameof(tm.TranslationMemoryId));
 
         var formatEnum =
-            EnumParser.Parse<TmFileFormat>(input.Format, nameof(input.Format), EnumValues.TmFileFormat);
+            EnumParser.Parse<TmFileFormat>(input.Format, nameof(input.Format));
 
         var client = new CrowdinEnterpriseClient(Creds);
 
@@ -114,7 +118,8 @@ public class TranslationMemoryActions : BaseInvocable
         var fileContent = await FileDownloader.DownloadFileBytes(response.Url);
         fileContent.Name = $"{input.TranslationMemoryId}";
         
-        return new(fileContent);
+        var fileReference = await _fileManagementClient.UploadAsync(fileContent.FileStream, fileContent.ContentType, fileContent.Name);
+        return new(fileReference);
     }
 
     [Action("Add translation memory segment", Description = "Add new segment to the translation memory")]
