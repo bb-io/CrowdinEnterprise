@@ -1,11 +1,11 @@
 ﻿using Apps.CrowdinEnterprise.DataSourceHandlers.EnumHandlers;
-using Blackbird.Applications.Sdk.Common.Dynamic;
+using Blackbird.Applications.Sdk.Common.Dictionaries;
 
 namespace Apps.CrowdinEnterprise.Models.Request.User;
 
 public class ListUsersRequest
 {
-    [DataSource(typeof(UserStatusDataHandler))]
+    [StaticDataSource(typeof(UserStatusDataHandler))]
     public string? Status { get; set; }
     public string? Search { get; set; }
     public string? TwoFactor { get; set; }

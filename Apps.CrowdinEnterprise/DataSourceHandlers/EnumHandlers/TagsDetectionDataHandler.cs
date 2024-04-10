@@ -1,13 +1,13 @@
-﻿using Blackbird.Applications.Sdk.Utils.Sdk.DataSourceHandlers;
+﻿using Blackbird.Applications.Sdk.Common.Dictionaries;
 
 namespace Apps.CrowdinEnterprise.DataSourceHandlers.EnumHandlers;
 
-public class TagsDetectionDataHandler : EnumDataHandler
+public class TagsDetectionDataHandler : IStaticDataSourceHandler
 {
-    protected override Dictionary<string, string> EnumValues => new()
+    public Dictionary<string, string> GetData() => new()
     {
-        {"Auto", "Auto"},
-        {"Count", "Count"},
-        {"Skip", "Skip"},
+        { "Auto", "Auto" },
+        { "Count", "Count" },
+        { "Skip", "Skip" },
     };
 }

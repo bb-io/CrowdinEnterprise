@@ -1,6 +1,5 @@
 ﻿using System.Text.Json;
 using Apps.CrowdinEnterprise.Constants;
-using Apps.CrowdinEnterprise.Models.Response.Glossary;
 using Apps.CrowdinEnterprise.Models.Responses;
 using Blackbird.Applications.Sdk.Common.Authentication;
 using Blackbird.Applications.Sdk.Utils.Extensions.Http;
