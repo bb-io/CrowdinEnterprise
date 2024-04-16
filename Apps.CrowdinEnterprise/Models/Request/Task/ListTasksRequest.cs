@@ -1,13 +1,13 @@
 ﻿using Apps.CrowdinEnterprise.DataSourceHandlers.EnumHandlers;
 using Apps.CrowdinEnterprise.Models.Request.Project;
 using Blackbird.Applications.Sdk.Common;
-using Blackbird.Applications.Sdk.Common.Dynamic;
+using Blackbird.Applications.Sdk.Common.Dictionaries;
 
 namespace Apps.CrowdinEnterprise.Models.Request.Task;
 
 public class ListTasksRequest : ProjectRequest
 {
-    [DataSource(typeof(TaskStatusHandler))]
+    [StaticDataSource(typeof(TaskStatusHandler))]
     public string? Status { get; set; }
     
     [Display("Assignee ID")]

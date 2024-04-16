@@ -1,6 +1,7 @@
 ﻿using Apps.CrowdinEnterprise.DataSourceHandlers;
 using Apps.CrowdinEnterprise.DataSourceHandlers.EnumHandlers;
 using Blackbird.Applications.Sdk.Common;
+using Blackbird.Applications.Sdk.Common.Dictionaries;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 
 namespace Apps.CrowdinEnterprise.Models.Request.Task;
@@ -18,7 +19,7 @@ public class AddNewTaskRequest
     [Display("File IDs")]
     public IEnumerable<string> FileIds { get; set; }
 
-    [DataSource(typeof(TaskStatusHandler))]
+    [StaticDataSource(typeof(TaskStatusHandler))]
     public string? Status { get; set; }
 
     public string? Description { get; set; }

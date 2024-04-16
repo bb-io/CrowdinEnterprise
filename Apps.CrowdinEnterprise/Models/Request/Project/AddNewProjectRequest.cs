@@ -1,6 +1,7 @@
 ﻿using Apps.CrowdinEnterprise.DataSourceHandlers;
 using Apps.CrowdinEnterprise.DataSourceHandlers.EnumHandlers;
 using Blackbird.Applications.Sdk.Common;
+using Blackbird.Applications.Sdk.Common.Dictionaries;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 
 namespace Apps.CrowdinEnterprise.Models.Request.Project;
@@ -52,11 +53,11 @@ public class AddNewProjectRequest
     [Display("QA check is active")] public bool? QaCheckIsActive { get; set; }
     
     [Display("Translate duplicates")]
-    [DataSource(typeof(TranslateDuplicatesDataHandler))]
+    [StaticDataSource(typeof(TranslateDuplicatesDataHandler))]
     public string? TranslateDuplicates { get; set; }
 
     [Display("Tags detection")]
-    [DataSource(typeof(TagsDetectionDataHandler))]
+    [StaticDataSource(typeof(TagsDetectionDataHandler))]
     public string? TagsDetection { get; set; }
 
     [Display("Delayed workflow start")]

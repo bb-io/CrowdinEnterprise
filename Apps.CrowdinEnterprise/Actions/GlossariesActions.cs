@@ -1,20 +1,16 @@
 ﻿using Apps.CrowdinEnterprise.Api;
-using Apps.CrowdinEnterprise.DataSourceHandlers;
 using Apps.CrowdinEnterprise.Models.Request.Glossary;
 using Apps.CrowdinEnterprise.Models.Response.Glossary;
 using Apps.CrowdinEnterprise.Utils;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Authentication;
-using Blackbird.Applications.Sdk.Common.Files;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using Blackbird.Applications.Sdk.Glossaries.Utils.Converters;
-using Blackbird.Applications.Sdk.Utils.Extensions.Http;
 using Blackbird.Applications.Sdk.Utils.Utilities;
 using Crowdin.Api;
 using Crowdin.Api.Glossaries;
-using RestSharp;
 
 namespace Apps.CrowdinEnterprise.Actions;
 

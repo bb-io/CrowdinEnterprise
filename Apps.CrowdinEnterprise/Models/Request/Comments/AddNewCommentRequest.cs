@@ -2,6 +2,7 @@
 using Apps.CrowdinEnterprise.DataSourceHandlers.EnumHandlers;
 using Apps.CrowdinEnterprise.Models.Request.Project;
 using Blackbird.Applications.Sdk.Common;
+using Blackbird.Applications.Sdk.Common.Dictionaries;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 
 namespace Apps.CrowdinEnterprise.Models.Request.Comments;
@@ -16,10 +17,10 @@ public class AddNewCommentRequest : ProjectRequest
 
     public string Text { get; set; }
     
-    [DataSource(typeof(StringCommentTypeHandler))]
+    [StaticDataSource(typeof(StringCommentTypeHandler))]
     public string Type { get; set; }
 
     [Display("Issue type")] 
-    [DataSource(typeof(IssueTypeHandler))]
+    [StaticDataSource(typeof(IssueTypeHandler))]
     public string? IssueType { get; set; }
 }

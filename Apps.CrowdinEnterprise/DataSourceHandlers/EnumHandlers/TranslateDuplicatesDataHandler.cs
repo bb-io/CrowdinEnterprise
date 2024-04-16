@@ -1,16 +1,16 @@
-﻿using Blackbird.Applications.Sdk.Utils.Sdk.DataSourceHandlers;
+﻿using Blackbird.Applications.Sdk.Common.Dictionaries;
 
 namespace Apps.CrowdinEnterprise.DataSourceHandlers.EnumHandlers;
 
-public class TranslateDuplicatesDataHandler : EnumDataHandler
+public class TranslateDuplicatesDataHandler : IStaticDataSourceHandler
 {
-    protected override Dictionary<string, string> EnumValues => new()
+    public Dictionary<string, string> GetData() => new()
     {
-        {"Show", "Show"},
-        {"Hide", "Hide"},
-        {"ShowAndAutoTranslate", "Show and auto translate"},
-        {"ShowWithVersionBranch", "Show with version branch"},
-        {"HideStrict", "Hide strict"},
-        {"ShowWithVersionBranchStrict", "Show with version branch strict"},
+        { "Show", "Show" },
+        { "Hide", "Hide" },
+        { "ShowAndAutoTranslate", "Show and auto translate" },
+        { "ShowWithVersionBranch", "Show with version branch" },
+        { "HideStrict", "Hide strict" },
+        { "ShowWithVersionBranchStrict", "Show with version branch strict" },
     };
 }

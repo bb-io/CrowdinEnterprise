@@ -1,5 +1,4 @@
 ﻿using Apps.CrowdinEnterprise.Api;
-using Apps.CrowdinEnterprise.Constants;
 using Apps.CrowdinEnterprise.Models.Entities;
 using Apps.CrowdinEnterprise.Models.Request.Comments;
 using Apps.CrowdinEnterprise.Models.Request.Project;

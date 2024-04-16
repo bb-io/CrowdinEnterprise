@@ -1,10 +1,10 @@
-﻿using Blackbird.Applications.Sdk.Utils.Sdk.DataSourceHandlers;
+﻿using Blackbird.Applications.Sdk.Common.Dictionaries;
 
 namespace Apps.CrowdinEnterprise.DataSourceHandlers.EnumHandlers;
 
-public class UserStatusDataHandler : EnumDataHandler
+public class UserStatusDataHandler : IStaticDataSourceHandler
 {
-    protected override Dictionary<string, string> EnumValues => new()
+    public Dictionary<string, string> GetData() => new()
     {
         { "Active", "Active" },
         { "Pending", "Pending" },
