@@ -1,5 +1,6 @@
 ﻿using Apps.CrowdinEnterprise.Api;
 using Apps.CrowdinEnterprise.Models.Entities;
+using Apps.CrowdinEnterprise.Models.Request;
 using Apps.CrowdinEnterprise.Models.Request.Project;
 using Apps.CrowdinEnterprise.Models.Request.Task;
 using Apps.CrowdinEnterprise.Models.Response.File;
@@ -62,7 +63,7 @@ public class TaskActions : BaseInvocable
 
     [Action("Add task", Description = "Add new task")]
     public async Task<TaskEntity> AddTask(
-        [ActionParameter] ProjectRequest project,
+        [ActionParameter] AssigneesRequest project,
         [ActionParameter] AddNewTaskRequest input)
     {
         var intProjectId = IntParser.Parse(project.ProjectId, nameof(project.ProjectId));
@@ -79,7 +80,7 @@ public class TaskActions : BaseInvocable
             SplitFiles = input.SplitFiles,
             SkipAssignedStrings = input.SkipAssignedStrings,
             LabelIds = input.LabelIds?.Select(labelId => IntParser.Parse(labelId, nameof(labelId))!.Value).ToList(),
-            Assignees = input.Assignees?.Select(assigneeId => new TaskAssigneeForm
+            Assignees = project.Assignees?.Select(assigneeId => new TaskAssigneeForm
                 { Id = IntParser.Parse(assigneeId, nameof(assigneeId))!.Value }).ToList(),
             DeadLine = input.Deadline,
             DateFrom = input.DateFrom,
