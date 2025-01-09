@@ -3,9 +3,9 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Product>Crowdin Enterprise</Product>
+    <Product>[Deprecated] Crowdin Enterprise</Product>
     <Description>Enterprise version of Crowdin localization management app</Description>
-    <Version>1.0.11</Version>
+    <Version>1.0.12</Version>
     <AssemblyName>Apps.CrowdinEnterprise</AssemblyName>
   </PropertyGroup>
   <ItemGroup>

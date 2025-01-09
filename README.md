@@ -8,6 +8,8 @@ Blackbird is the new automation backbone for the language technology industry. B
 
 Crowdin Enterprise is an advanced version of the Crowdin localization platform tailored for larger organizations and enterprises with complex localization needs. It offers additional features, customization options, security enhancements, and scalability to meet the demands of large-scale localization projects within corporate environments.
 
+> Please note, the Crowdin Enterprise app is deprecated. We have currently merged the two Crowdin apps into one [Crowdin app](https://docs.blackbird.io/apps/crowdin/), and we strongly recommend using the Crowdin app instead of Crowdin Enterprise.
+
 ## Connecting
 
 1. Navigate to apps and search for Crowdin Enterprise. If you cannot find Crowdin Enterprise then click _Add App_ in the top right corner, select Crowdin Enterprise and add the app to your Blackbird environment.
